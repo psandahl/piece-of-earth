@@ -9,7 +9,17 @@ module App.State
     ( State (..)
     ) where
 
+import           Graphics.GL (GLfloat)
+import           Linear      (M44)
+
 -- | The state of the application. It will be carried by the runtime IORef
 -- variable.
-data State = State !Int
+data State = State
+    { resourceDir :: !FilePath
+      -- ^ The base directory for all external resource files.
+
+    , perspective :: !(M44 GLfloat)
+      -- ^ The perspective matrix for the application. Will be updated when
+      -- the screen resulution change.
+    }
     deriving Show

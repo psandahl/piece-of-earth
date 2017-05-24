@@ -10,8 +10,19 @@ module App.Setup
     ) where
 
 import           App.Options  (Options)
-import           App.State    (State)
-import           BigE.Runtime (Render)
+import qualified App.Options  as Options
+import           App.State    (State (..))
+import           BigE.Math    (mkPerspective)
+import           BigE.Runtime (Render, displayDimensions)
 
+-- | Setup the state for the application.
 setup :: Options -> Render State (Either String State)
-setup = undefined
+setup options = do
+    dimensions <- displayDimensions
+
+    -- Create the 'State' record.
+    let state = State { resourceDir = Options.resourceDir options
+                      , perspective = mkPerspective dimensions
+                      }
+
+    return $ Right state
