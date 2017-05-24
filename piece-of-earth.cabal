@@ -17,6 +17,7 @@ executable piece-ef-earth
   hs-source-dirs:      src
   main-is:             Main.hs
   other-modules:       App.Animate
+                       App.Callback
                        App.Options
                        App.Render
                        App.Setup

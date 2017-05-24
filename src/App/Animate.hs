@@ -13,4 +13,4 @@ import           App.State    (State)
 import           BigE.Runtime (Render)
 
 animate :: Render State ()
-animate = undefined
+animate = return ()

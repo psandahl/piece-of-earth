@@ -9,6 +9,7 @@ module App.Setup
     ( setup
     ) where
 
+import           App.Callback (install)
 import           App.Options  (Options)
 import qualified App.Options  as Options
 import           App.State    (State (..))
@@ -18,6 +19,9 @@ import           BigE.Runtime (Render, displayDimensions)
 -- | Setup the state for the application.
 setup :: Options -> Render State (Either String State)
 setup options = do
+    -- Install callbacks.
+    install
+
     dimensions <- displayDimensions
 
     -- Create the 'State' record.

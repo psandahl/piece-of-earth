@@ -13,4 +13,4 @@ import           App.State    (State)
 import           BigE.Runtime (Render)
 
 teardown :: Render State ()
-teardown = undefined
+teardown = return ()

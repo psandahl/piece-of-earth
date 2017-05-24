@@ -11,6 +11,10 @@ module App.Render
 
 import           App.State    (State)
 import           BigE.Runtime (Render)
+import qualified Graphics.GL  as GL
 
+-- | The master rendering callback.
 render :: Render State ()
-render = undefined
+render = do
+    GL.glClearColor 0 0 0.4 0
+    GL.glClear GL.GL_COLOR_BUFFER_BIT
