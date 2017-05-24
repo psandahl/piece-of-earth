@@ -1,17 +1,17 @@
 -- |
--- Module: App.Callback
+-- Module: Engine.Callback
 -- Copyright: (c) 2017 Patrik Sandahl
 -- Licence: MIT
 -- Maintainer: Patrik Sandahl <patrik.sandahl@gmail.com>
 -- Stability: experimental
 -- Portability: portable
-module App.Callback
+module Engine.Callback
     ( install
     ) where
 
-import           App.State    (State (..))
 import           BigE.Math    (mkPerspective)
 import           BigE.Runtime (Render, modifyAppState, setWindowSizeCallback)
+import           Engine.State (State (..))
 
 -- | Install callbacks.
 install :: Render State ()

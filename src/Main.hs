@@ -2,13 +2,13 @@ module Main
     ( main
     ) where
 
-import qualified App.Animate  as Animate
-import           App.Options  (Options (..), parseOptions)
-import qualified App.Render   as Render
-import qualified App.Setup    as Setup
-import qualified App.Teardown as Teardown
-import           BigE.Runtime (Configuration (..), DisplayMode (..), runBigE)
-import           Text.Printf  (printf)
+import           BigE.Runtime    (Configuration (..), DisplayMode (..), runBigE)
+import qualified Engine.Animate  as Animate
+import           Engine.Options  (Options (..), parseOptions)
+import qualified Engine.Render   as Render
+import qualified Engine.Setup    as Setup
+import qualified Engine.Teardown as Teardown
+import           Text.Printf     (printf)
 
 main :: IO ()
 main = do

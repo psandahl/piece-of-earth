@@ -1,16 +1,16 @@
 -- |
--- Module: App.Render
+-- Module: Engine.Render
 -- Copyright: (c) 2017 Patrik Sandahl
 -- Licence: MIT
 -- Maintainer: Patrik Sandahl <patrik.sandahl@gmail.com>
 -- Stability: experimental
 -- Portability: portable
-module App.Render
+module Engine.Render
     ( render
     ) where
 
-import           App.State    (State)
 import           BigE.Runtime (Render)
+import           Engine.State (State)
 import qualified Graphics.GL  as GL
 
 -- | The master rendering callback.

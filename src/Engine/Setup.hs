@@ -1,20 +1,20 @@
 -- |
--- Module: App.Setup
+-- Module: Engine.Setup
 -- Copyright: (c) 2017 Patrik Sandahl
 -- Licence: MIT
 -- Maintainer: Patrik Sandahl <patrik.sandahl@gmail.com>
 -- Stability: experimental
 -- Portability: portable
-module App.Setup
+module Engine.Setup
     ( setup
     ) where
 
-import           App.Callback (install)
-import           App.Options  (Options)
-import qualified App.Options  as Options
-import           App.State    (State (..))
-import           BigE.Math    (mkPerspective)
-import           BigE.Runtime (Render, displayDimensions)
+import           BigE.Math       (mkPerspective)
+import           BigE.Runtime    (Render, displayDimensions)
+import           Engine.Callback (install)
+import           Engine.Options  (Options)
+import qualified Engine.Options  as Options
+import           Engine.State    (State (..))
 
 -- | Setup the state for the application.
 setup :: Options -> Render State (Either String State)
