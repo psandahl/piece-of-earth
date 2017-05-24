@@ -16,7 +16,12 @@ extra-source-files:  README.md
 executable piece-ef-earth
   hs-source-dirs:      src
   main-is:             Main.hs
-  other-modules:       App.Options
+  other-modules:       App.Animate
+                       App.Options
+                       App.Render
+                       App.Setup
+                       App.State
+                       App.Teardown
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
                      , big-engine
