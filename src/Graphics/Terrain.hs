@@ -15,23 +15,22 @@ module Graphics.Terrain
     , render
     ) where
 
-import           BigE.Runtime           (Render)
 import           Control.Monad.IO.Class (MonadIO)
-import           Engine.State           (State)
 import           Graphics.GL            (GLfloat)
 import           Linear                 (M44)
 import           Prelude                hiding (init)
 
 -- | Terrain record.
 data Terrain = Terrain
+    deriving Show
 
 -- | Initialize the terrain given the path to the resource base directory.
 init :: MonadIO m => FilePath -> m (Either String Terrain)
 init _resourceDir = return $ Right Terrain
 
 delete :: MonadIO m => Terrain -> m ()
-delete = undefined
+delete _terrain = return ()
 
 -- | Render all terrain given the perspective/view matrix.
-render :: M44 GLfloat -> Render State ()
+render :: MonadIO m => M44 GLfloat -> m ()
 render = undefined

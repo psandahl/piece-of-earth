@@ -16,6 +16,7 @@ import           Linear      (M44)
 import           Prelude     hiding (init)
 
 data Camera = Camera
+    deriving Show
 
 -- | Initialze the camera.
 init :: Camera

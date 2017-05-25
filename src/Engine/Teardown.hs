@@ -9,8 +9,13 @@ module Engine.Teardown
     ( teardown
     ) where
 
-import           BigE.Runtime (Render)
-import           Engine.State (State)
+import           BigE.Runtime     (Render, getAppStateUnsafe)
+import           Engine.State     (State (..))
+import qualified Graphics.Terrain as Terrain
 
+-- | Teardown the application. Clean-up time.
 teardown :: Render State ()
-teardown = return ()
+teardown = do
+    state <- getAppStateUnsafe
+
+    Terrain.delete $ terrain state

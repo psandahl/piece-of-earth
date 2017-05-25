@@ -9,8 +9,10 @@ module Engine.State
     ( State (..)
     ) where
 
-import           Graphics.GL (GLfloat)
-import           Linear      (M44)
+import           Graphics.Camera  (Camera)
+import           Graphics.GL      (GLfloat)
+import           Graphics.Terrain (Terrain)
+import           Linear           (M44)
 
 -- | The state of the application. It will be carried by the runtime IORef
 -- variable.
@@ -21,6 +23,12 @@ data State = State
     , perspective :: !(M44 GLfloat)
       -- ^ The perspective matrix for the application. Will be updated when
       -- the screen resulution change.
+
+    , camera      :: !Camera
+      -- ^ The application's camera.
+
+    , terrain     :: !Terrain
+      -- ^ The application's container holding all terrain.
 
     , frameRate   :: !Double
       -- ^ The current frame rate. Will only change if it's differ significantly
