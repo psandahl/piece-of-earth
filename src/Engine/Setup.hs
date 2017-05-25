@@ -27,6 +27,7 @@ setup options = do
     -- Create the 'State' record.
     let state = State { resourceDir = Options.resourceDir options
                       , perspective = mkPerspective dimensions
+                      , frameRate = 0
                       }
 
     return $ Right state

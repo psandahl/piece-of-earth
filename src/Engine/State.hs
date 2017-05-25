@@ -21,5 +21,9 @@ data State = State
     , perspective :: !(M44 GLfloat)
       -- ^ The perspective matrix for the application. Will be updated when
       -- the screen resulution change.
+
+    , frameRate   :: !Double
+      -- ^ The current frame rate. Will only change if it's differ significantly
+      -- from last frame's measured rate.
     }
     deriving Show
