@@ -23,6 +23,8 @@ executable piece-ef-earth
                        Engine.Setup
                        Engine.State
                        Engine.Teardown
+                       Graphics.Camera
+                       Graphics.Terrain
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
                      , big-engine
