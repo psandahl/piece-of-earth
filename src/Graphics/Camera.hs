@@ -12,16 +12,19 @@ module Graphics.Camera
     ) where
 
 import           Graphics.GL (GLfloat)
-import           Linear      (M44)
+import           Linear      (M44, V3 (..), lookAt)
 import           Prelude     hiding (init)
 
+-- | The camera record.
 data Camera = Camera
-    deriving Show
+    { view :: !(M44 GLfloat)
+    } deriving Show
 
 -- | Initialze the camera.
 init :: Camera
-init = Camera
+init =
+    Camera { view = lookAt (V3 0 3 0) (V3 1 0 1) (V3 0 1 0) }
 
 -- | Get the 'Camera's matrix.
-matrix :: M44 GLfloat
-matrix = undefined
+matrix :: Camera -> M44 GLfloat
+matrix = view

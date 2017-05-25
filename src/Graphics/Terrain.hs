@@ -46,8 +46,9 @@ delete terrain =
 
 -- | Render all terrain given the perspective/view matrix.
 render :: MonadIO m => M44 GLfloat -> m ()
-render = undefined
+render _vp = return ()
 
+-- | Load the program used for terrain rendering.
 loadProgram :: MonadIO m => FilePath -> m (Either String Program)
 loadProgram resourceDir = do
     let vertexShader = resourceDir </> "shaders" </> "terrain.vert"
