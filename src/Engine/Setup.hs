@@ -14,7 +14,7 @@ import           BigE.Runtime     (Render, displayDimensions)
 import           Engine.Callback  (install)
 import           Engine.Options   (Options)
 import qualified Engine.Options   as Options
-import           Engine.State     (State (..))
+import           Engine.State     (State (..), defaultUserInput)
 import qualified Graphics.Camera  as Camera
 import qualified Graphics.Terrain as Terrain
 
@@ -39,6 +39,7 @@ setup options = do
                               , camera = Camera.init
                               , terrain = terrain'
                               , frameRate = 0
+                              , userInput = defaultUserInput
                               }
 
             -- Done. We have built an initial state.

@@ -7,6 +7,8 @@
 -- Portability: portable
 module Engine.State
     ( State (..)
+    , UserInput (..)
+    , defaultUserInput
     ) where
 
 import           Graphics.Camera  (Camera)
@@ -33,5 +35,20 @@ data State = State
     , frameRate   :: !Double
       -- ^ The current frame rate. Will only change if it's differ significantly
       -- from last frame's measured rate.
-    }
-    deriving Show
+
+    , userInput   :: !UserInput
+      -- ^ The user input valid for the frame.
+    } deriving Show
+
+-- | Values set by user input. Used in animate or renders callbacks.
+data UserInput = UserInput
+    { renderWireframe :: !Bool
+      -- ^ Render the main models as wireframes.
+    } deriving Show
+
+-- | Set default values for the 'UserInput'.
+defaultUserInput :: UserInput
+defaultUserInput =
+    UserInput
+        { renderWireframe = True
+        }
