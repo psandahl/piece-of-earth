@@ -50,5 +50,5 @@ data UserInput = UserInput
 defaultUserInput :: UserInput
 defaultUserInput =
     UserInput
-        { renderWireframe = True
+        { renderWireframe = False
         }
