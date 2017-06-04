@@ -12,10 +12,11 @@ module Engine.Render
 import           BigE.Runtime     (Render, getAppStateUnsafe)
 import           Control.Monad    (when)
 import           Data.Bits        ((.|.))
-import           Engine.State     (State (..), UserInput (..))
+import           Engine.State     (State (..))
 import           Graphics.Camera  (matrix)
 import qualified Graphics.GL      as GL
 import qualified Graphics.Terrain as Terrain
+import           Graphics.Types   (UserInput (..))
 import           Linear           ((!*!))
 
 -- | The master rendering callback.

@@ -9,12 +9,13 @@ module Engine.Callback
     ( install
     ) where
 
-import           BigE.Math    (mkPerspective)
-import           BigE.Runtime (Key (..), ModifierKeys, Render,
-                               getAppStateUnsafe, modifyAppState, putAppState,
-                               setKeyPressedCallback, setKeyReleasedCallback,
-                               setWindowSizeCallback)
-import           Engine.State (State (..), UserInput (..))
+import           BigE.Math      (mkPerspective)
+import           BigE.Runtime   (Key (..), ModifierKeys, Render,
+                                 getAppStateUnsafe, modifyAppState, putAppState,
+                                 setKeyPressedCallback, setKeyReleasedCallback,
+                                 setWindowSizeCallback)
+import           Engine.State   (State (..))
+import           Graphics.Types (UserInput (..))
 
 -- | Install callbacks.
 install :: Render State ()

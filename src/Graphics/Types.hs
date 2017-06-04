@@ -8,6 +8,8 @@
 module Graphics.Types
     ( Terrain (..)
     , GUI (..)
+    , UserInput (..)
+    , defaultUserInput
     ) where
 
 import           BigE.Mesh  (Mesh)
@@ -26,3 +28,16 @@ data Terrain = Terrain
 -- | GUI record.
 data GUI = GUI
     deriving Show
+
+-- | Values set by user input. Used in animate or renders callbacks.
+data UserInput = UserInput
+    { renderWireframe :: !Bool
+      -- ^ Render the main models as wireframes.
+    } deriving Show
+
+-- | Set default values for the 'UserInput'.
+defaultUserInput :: UserInput
+defaultUserInput =
+    UserInput
+        { renderWireframe = False
+        }

@@ -14,9 +14,10 @@ import           BigE.Runtime     (Render, displayDimensions)
 import           Engine.Callback  (install)
 import           Engine.Options   (Options)
 import qualified Engine.Options   as Options
-import           Engine.State     (State (..), defaultUserInput)
+import           Engine.State     (State (..))
 import qualified Graphics.Camera  as Camera
 import qualified Graphics.Terrain as Terrain
+import           Graphics.Types   (defaultUserInput)
 
 -- | Setup the state for the application.
 setup :: Options -> Render State (Either String State)

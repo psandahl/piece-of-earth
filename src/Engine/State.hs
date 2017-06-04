@@ -7,13 +7,11 @@
 -- Portability: portable
 module Engine.State
     ( State (..)
-    , UserInput (..)
-    , defaultUserInput
     ) where
 
 import           Graphics.Camera (Camera)
 import           Graphics.GL     (GLfloat)
-import           Graphics.Types  (Terrain)
+import           Graphics.Types  (Terrain, UserInput)
 import           Linear          (M44)
 
 -- | The state of the application. It will be carried by the runtime IORef
@@ -39,16 +37,3 @@ data State = State
     , userInput   :: !UserInput
       -- ^ The user input valid for the frame.
     } deriving Show
-
--- | Values set by user input. Used in animate or renders callbacks.
-data UserInput = UserInput
-    { renderWireframe :: !Bool
-      -- ^ Render the main models as wireframes.
-    } deriving Show
-
--- | Set default values for the 'UserInput'.
-defaultUserInput :: UserInput
-defaultUserInput =
-    UserInput
-        { renderWireframe = False
-        }
