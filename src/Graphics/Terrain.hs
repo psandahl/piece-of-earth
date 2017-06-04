@@ -57,7 +57,7 @@ init resourceDir = do
                               }
         Left err -> return $ Left err
 
--- | Delete the terrains resources.
+-- | Delete the terrain's resources.
 delete :: MonadIO m => Terrain -> m ()
 delete terrain =
     Program.delete $ program terrain
