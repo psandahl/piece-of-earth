@@ -9,8 +9,7 @@
 -- The Terrain module holds the pieces of terrain together and is responsible
 -- for the rendering of the terrain.
 module Graphics.Terrain
-    ( Terrain
-    , init
+    ( init
     , delete
     , render
     ) where
@@ -19,26 +18,18 @@ import qualified BigE.ImageMap          as ImageMap
 import           BigE.Mesh              (Mesh)
 import qualified BigE.Mesh              as Mesh
 import qualified BigE.Program           as Program
+import           BigE.Runtime           (Render)
 import qualified BigE.TerrainGrid       as TerrainGrid
-import           BigE.Types             (BufferUsage (..), Location,
-                                         Primitive (..), Program,
-                                         ShaderType (..), setUniform)
+import           BigE.Types             (BufferUsage (..), Primitive (..),
+                                         Program, ShaderType (..), setUniform)
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Vector            (fromList)
+import           Engine.State           (State)
 import           Graphics.GL            (GLfloat)
+import           Graphics.Types         (Terrain (..))
 import           Linear                 (M44)
 import           Prelude                hiding (init)
 import           System.FilePath        ((</>))
-
--- | Terrain record.
-data Terrain = Terrain
-    { program :: !Program
-      -- ^ The shader program for rendering of terrains.
-
-    , mvpLoc  :: !Location
-
-    , mesh    :: !Mesh
-    } deriving Show
 
 -- | Initialize the terrain given the path to the resource base directory.
 init :: MonadIO m => FilePath -> m (Either String Terrain)
@@ -58,12 +49,12 @@ init resourceDir = do
         Left err -> return $ Left err
 
 -- | Delete the terrain's resources.
-delete :: MonadIO m => Terrain -> m ()
+delete :: Terrain -> Render State ()
 delete terrain =
     Program.delete $ program terrain
 
 -- | Render all terrain given the perspective/view matrix.
-render :: MonadIO m => M44 GLfloat -> Terrain -> m ()
+render :: M44 GLfloat -> Terrain -> Render State ()
 render vp terrain = do
     Program.enable $ program terrain
     setUniform (mvpLoc terrain) vp

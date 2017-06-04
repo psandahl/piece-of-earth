@@ -6,8 +6,7 @@
 -- Stability: experimental
 -- Portability: portable
 module Graphics.GUI
-    ( GUI
-    , init
+    ( init
     , delete
     , animate
     , render
@@ -17,26 +16,23 @@ module Graphics.GUI
 import           BigE.Runtime           (Render)
 import           Control.Monad.IO.Class (MonadIO)
 import           Engine.State           (State)
+import           Graphics.Types         (GUI (..))
 import           Prelude                hiding (init)
-
--- | GUI record.
-data GUI = GUI
-    deriving Show
 
 -- | Initialize the GUI given the path to the resource base directory.
 init :: MonadIO m => FilePath -> m (Either String GUI)
-init = undefined
+init _ = return (Right GUI)
 
 -- | Delete the GUI's resources.
-delete :: MonadIO m => GUI -> m ()
-delete = undefined
+delete :: GUI -> Render State ()
+delete _ = return ()
 
 -- | Animate the GUI.
-animate :: MonadIO m => GUI -> m GUI
-animate = undefined
+animate :: GUI -> Render State ()
+animate _ = return ()
 
 render :: GUI -> Render State ()
-render = undefined
+render _ = return ()
 
 setCenterFlash :: String -> GUI -> GUI
 setCenterFlash = undefined
