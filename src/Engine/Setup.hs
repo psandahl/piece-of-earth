@@ -11,11 +11,13 @@ module Engine.Setup
 
 import           BigE.Math        (mkPerspective)
 import           BigE.Runtime     (Render, displayDimensions)
+import           BigE.Util        (eitherTwo)
 import           Engine.Callback  (install)
 import           Engine.Options   (Options)
 import qualified Engine.Options   as Options
 import           Engine.State     (State (..))
 import qualified Graphics.Camera  as Camera
+import qualified Graphics.GUI     as GUI
 import qualified Graphics.Terrain as Terrain
 import           Graphics.Types   (defaultUserInput)
 
@@ -23,11 +25,13 @@ import           Graphics.Types   (defaultUserInput)
 setup :: Options -> Render State (Either String State)
 setup options = do
     -- Start by initializing things that can fail.
-    eTerrain <- Terrain.init $ Options.resourceDir options
+    let resourceDir' = Options.resourceDir options
+    eTerrain <- Terrain.init resourceDir'
+    eGUI <- GUI.init resourceDir'
 
-    case eTerrain of
+    case eitherTwo (eTerrain, eGUI) of
 
-        Right terrain' -> do
+        Right (terrain', gui') -> do
 
             -- Install callbacks.
             install
@@ -35,10 +39,11 @@ setup options = do
             dimensions <- displayDimensions
 
             -- Create the 'State' record.
-            let state = State { resourceDir = Options.resourceDir options
+            let state = State { resourceDir = resourceDir'
                               , perspective = mkPerspective dimensions
                               , camera = Camera.init
                               , terrain = terrain'
+                              , gui = gui'
                               , frameRate = 0
                               , userInput = defaultUserInput
                               }

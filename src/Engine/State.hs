@@ -11,7 +11,7 @@ module Engine.State
 
 import           Graphics.Camera (Camera)
 import           Graphics.GL     (GLfloat)
-import           Graphics.Types  (Terrain, UserInput)
+import           Graphics.Types  (GUI, Terrain, UserInput)
 import           Linear          (M44)
 
 -- | The state of the application. It will be carried by the runtime IORef
@@ -29,6 +29,9 @@ data State = State
 
     , terrain     :: !Terrain
       -- ^ The application's container holding all terrain.
+
+    , gui         :: !GUI
+      -- ^ The application's GUI.
 
     , frameRate   :: !Double
       -- ^ The current frame rate. Will only change if it's differ significantly

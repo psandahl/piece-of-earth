@@ -12,8 +12,9 @@ module Graphics.Types
     , defaultUserInput
     ) where
 
-import           BigE.Mesh  (Mesh)
-import           BigE.Types (Location, Program)
+import           BigE.Mesh              (Mesh)
+import           BigE.TextRenderer.Font (Font)
+import           BigE.Types             (Location, Program)
 
 -- | Terrain record.
 data Terrain = Terrain
@@ -21,13 +22,17 @@ data Terrain = Terrain
      -- ^ The shader program for rendering of terrains.
 
     , mvpLoc  :: !Location
+      -- ^ MVP matrix program location.
 
     , mesh    :: !Mesh
+      -- ^ The mesh.
     } deriving Show
 
 -- | GUI record.
 data GUI = GUI
-    deriving Show
+    { centerFlashFont :: !Font
+      -- ^ The 'Font' used for center flash texts.
+    } deriving Show
 
 -- | Values set by user input. Used in animate or renders callbacks.
 data UserInput = UserInput

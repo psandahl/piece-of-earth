@@ -15,6 +15,7 @@ import           Data.Bits        ((.|.))
 import           Engine.State     (State (..))
 import           Graphics.Camera  (matrix)
 import qualified Graphics.GL      as GL
+import qualified Graphics.GUI     as GUI
 import qualified Graphics.Terrain as Terrain
 import           Graphics.Types   (UserInput (..))
 import           Linear           ((!*!))
@@ -46,3 +47,6 @@ render = do
 
     when (renderWireframe userInp) $
         GL.glPolygonMode GL.GL_FRONT_AND_BACK GL.GL_FILL
+
+    -- Render the GUI.
+    GUI.render $ gui state
