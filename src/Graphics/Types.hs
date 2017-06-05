@@ -13,7 +13,9 @@ module Graphics.Types
     ) where
 
 import           BigE.Mesh              (Mesh)
+import           BigE.TextRenderer      (RenderParams, TextRenderer)
 import           BigE.TextRenderer.Font (Font)
+import           BigE.TextRenderer.Text (Text)
 import           BigE.Types             (Location, Program)
 
 -- | Terrain record.
@@ -30,8 +32,16 @@ data Terrain = Terrain
 
 -- | GUI record.
 data GUI = GUI
-    { centerFlashFont :: !Font
+    { textRenderer      :: !TextRenderer
+      -- ^ The GUI's 'TextRenderer'.
+
+    , centerFlashFont   :: !Font
       -- ^ The 'Font' used for center flash texts.
+
+    , centerFlashParams :: !RenderParams
+      -- ^ The 'RenderParams' for the center flash.
+
+    , centerFlashText   :: !Text
     } deriving Show
 
 -- | Values set by user input. Used in animate or renders callbacks.
