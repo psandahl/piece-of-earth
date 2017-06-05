@@ -8,6 +8,7 @@
 module Graphics.Types
     ( Terrain (..)
     , GUI (..)
+    , TextEntity (..)
     , UserInput (..)
     , defaultUserInput
     ) where
@@ -32,16 +33,20 @@ data Terrain = Terrain
 
 -- | GUI record.
 data GUI = GUI
-    { textRenderer      :: !TextRenderer
+    { textRenderer    :: !TextRenderer
       -- ^ The GUI's 'TextRenderer'.
 
-    , centerFlashFont   :: !Font
+    , centerFlashFont :: !Font
       -- ^ The 'Font' used for center flash texts.
 
-    , centerFlashParams :: !RenderParams
-      -- ^ The 'RenderParams' for the center flash.
+    , centerFlash     :: !(Maybe TextEntity)
+      -- ^ The 'TextEntity' for the center flash.
+    } deriving Show
 
-    , centerFlashText   :: !Text
+-- | TextUnit record.
+data TextEntity = TextEntity
+    { text         :: !Text
+    , renderParams :: !RenderParams
     } deriving Show
 
 -- | Values set by user input. Used in animate or renders callbacks.

@@ -20,9 +20,11 @@ import           BigE.TextRenderer.Font (Font)
 import qualified BigE.TextRenderer.Font as Font
 import qualified BigE.TextRenderer.Text as Text
 import           BigE.Util              (eitherTwo)
+import           Control.Monad          (when)
 import           Control.Monad.IO.Class (MonadIO)
+import           Data.Maybe             (fromJust, isJust)
 import           Engine.State           (State)
-import           Graphics.Types         (GUI (..))
+import           Graphics.Types         (GUI (..), TextEntity (..))
 import           Linear                 (V3 (..))
 import           Prelude                hiding (init)
 import           System.FilePath        ((</>))
@@ -35,14 +37,12 @@ init resourceDir = do
     eCenterFlashFont <- loadCenterFlashFont resourceDir
 
     case eitherTwo (eTextRenderer, eCenterFlashFont) of
-        Right (textRenderer', centerFlashFont') -> do
-            centerFlashText' <- Text.init centerFlashFont' "[+Wireframe]"
+        Right (textRenderer', centerFlashFont') ->
 
             return $
                 Right GUI { textRenderer = textRenderer'
                           , centerFlashFont = centerFlashFont'
-                          , centerFlashParams = centerFlashRenderParams
-                          , centerFlashText = centerFlashText'
+                          , centerFlash = Nothing
                           }
 
         -- Nope. Didn't manage to init.
@@ -51,18 +51,28 @@ init resourceDir = do
 -- | Delete the GUI's resources.
 delete :: GUI -> Render State ()
 delete gui = do
-    Text.delete $ centerFlashText gui
+    maybe (return ()) (Text.delete . text) $ centerFlash gui
     Font.delete $ centerFlashFont gui
     TextRenderer.delete $ textRenderer gui
 
 -- | Animate the GUI.
 animate :: GUI -> Render State GUI
-animate gui = return gui
+animate gui =
+    case centerFlash gui of
+        Just _ -> return gui
+        Nothing -> do
+            centerFlash' <- newCenterFlash "[-Wireframe]" gui
+            return gui { centerFlash = Just centerFlash' }
 
 -- | Render the GUI.
 render :: GUI -> Render State ()
-render gui =
-    TextRenderer.render (centerFlashText gui) (centerFlashParams gui) (textRenderer gui)
+render gui = do
+    let mCenterFlash = centerFlash gui
+    when (isJust mCenterFlash) $ do
+        let centerFlash' = fromJust mCenterFlash
+        TextRenderer.render (text centerFlash')
+                            (renderParams centerFlash')
+                            (textRenderer gui)
 
 setCenterFlash :: String -> GUI -> GUI
 setCenterFlash = undefined
@@ -72,6 +82,12 @@ loadCenterFlashFont :: MonadIO m => FilePath -> m (Either String Font)
 loadCenterFlashFont resourceDir = do
     let fontFile = resourceDir </> "fonts" </> "purisa-70.fnt"
     Font.fromFile fontFile
+
+-- | Creata a new 'TextEntity' for the center flash.
+newCenterFlash :: MonadIO m => String -> GUI -> m TextEntity
+newCenterFlash str gui = do
+    text' <- Text.init (centerFlashFont gui) str
+    return TextEntity { text = text', renderParams = centerFlashRenderParams }
 
 -- | Setting 'RenderParams' for the center flash.
 centerFlashRenderParams :: RenderParams
