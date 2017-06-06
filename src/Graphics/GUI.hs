@@ -10,10 +10,11 @@ module Graphics.GUI
     , delete
     , animate
     , render
-    , setCenterFlash
+    , requestCenterFlash
     ) where
 
-import           BigE.Runtime           (Render)
+import           BigE.Runtime           (Render, frameDuration,
+                                         getAppStateUnsafe, putAppState)
 import           BigE.TextRenderer      (Position (..), RenderParams (..))
 import qualified BigE.TextRenderer      as TextRenderer
 import           BigE.TextRenderer.Font (Font)
@@ -23,7 +24,7 @@ import           BigE.Util              (eitherTwo)
 import           Control.Monad          (when)
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Maybe             (fromJust, isJust)
-import           Engine.State           (State)
+import           Engine.State           (State (gui))
 import           Graphics.Types         (GUI (..), TextEntity (..))
 import           Linear                 (V3 (..))
 import           Prelude                hiding (init)
@@ -50,32 +51,54 @@ init resourceDir = do
 
 -- | Delete the GUI's resources.
 delete :: GUI -> Render State ()
-delete gui = do
-    maybe (return ()) (Text.delete . text) $ centerFlash gui
-    Font.delete $ centerFlashFont gui
-    TextRenderer.delete $ textRenderer gui
+delete gui' = do
+    maybe (return ()) (Text.delete . text) $ centerFlash gui'
+    Font.delete $ centerFlashFont gui'
+    TextRenderer.delete $ textRenderer gui'
 
 -- | Animate the GUI.
 animate :: GUI -> Render State GUI
-animate gui =
-    case centerFlash gui of
-        Just _ -> return gui
-        Nothing -> do
-            centerFlash' <- newCenterFlash "[-Wireframe]" gui
-            return gui { centerFlash = Just centerFlash' }
+animate gui' =
+    case centerFlash gui' of
+        Just centerFlash' -> do
+            frameTime <- realToFrac <$> frameDuration
+            let decrease = 1.5 * frameTime * (alpha $ renderParams centerFlash')
+                alpha' = (alpha $ renderParams centerFlash') - decrease
+            if alpha' < 0 then
+                do Text.delete (text centerFlash')
+                   return gui' { centerFlash = Nothing }
+            else
+                do let newRenderParams = (renderParams centerFlash') { alpha = alpha' }
+                       newFlash = centerFlash' { renderParams = newRenderParams }
+                   return gui' { centerFlash = Just newFlash }
+
+        Nothing -> return gui'
 
 -- | Render the GUI.
 render :: GUI -> Render State ()
-render gui = do
-    let mCenterFlash = centerFlash gui
+render gui' = do
+    let mCenterFlash = centerFlash gui'
     when (isJust mCenterFlash) $ do
         let centerFlash' = fromJust mCenterFlash
         TextRenderer.render (text centerFlash')
                             (renderParams centerFlash')
-                            (textRenderer gui)
+                            (textRenderer gui')
 
-setCenterFlash :: String -> GUI -> GUI
-setCenterFlash = undefined
+-- | Request a new center flash message. If there already is an active message
+-- that will be replaced.
+requestCenterFlash :: String -> Render State ()
+requestCenterFlash str = do
+    state <- getAppStateUnsafe
+    let mCenterFlash = centerFlash $ gui state
+
+    when (isJust mCenterFlash) $ do
+        let centerFlash' = fromJust mCenterFlash
+        Text.delete $ text centerFlash'
+
+    centerFlash' <- newCenterFlash str $ gui state
+    let gui' = (gui state) { centerFlash = Just centerFlash' }
+
+    putAppState state { gui = gui' }
 
 -- | Load the center flash font from the resource directory.
 loadCenterFlashFont :: MonadIO m => FilePath -> m (Either String Font)
@@ -85,8 +108,8 @@ loadCenterFlashFont resourceDir = do
 
 -- | Creata a new 'TextEntity' for the center flash.
 newCenterFlash :: MonadIO m => String -> GUI -> m TextEntity
-newCenterFlash str gui = do
-    text' <- Text.init (centerFlashFont gui) str
+newCenterFlash str gui' = do
+    text' <- Text.init (centerFlashFont gui') str
     return TextEntity { text = text', renderParams = centerFlashRenderParams }
 
 -- | Setting 'RenderParams' for the center flash.
@@ -96,5 +119,5 @@ centerFlashRenderParams =
         { size = 26
         , position = CenterAt 0 0
         , color = V3 1 1 0
-        , alpha = 1
+        , alpha = 2 -- Value will be clamped to 1. But neat trick for animation.
         }

@@ -15,6 +15,7 @@ import           BigE.Runtime   (Key (..), ModifierKeys, Render,
                                  setKeyPressedCallback, setKeyReleasedCallback,
                                  setWindowSizeCallback)
 import           Engine.State   (State (..))
+import           Graphics.GUI   (requestCenterFlash)
 import           Graphics.Types (UserInput (..))
 
 -- | Install callbacks.
@@ -40,8 +41,11 @@ keyPressedCallback Key'W _modifierKeys = do
     let userInp = userInput state
 
     if renderWireframe userInp then
-        putAppState $ state { userInput = userInp { renderWireframe = False }}
-    else putAppState $ state { userInput = userInp { renderWireframe = True }}
+        do putAppState $ state { userInput = userInp { renderWireframe = False }}
+           requestCenterFlash "[-wireframe]"
+    else
+        do putAppState $ state { userInput = userInp { renderWireframe = True }}
+           requestCenterFlash "[+wireframe]"
 
 -- Default - no - action.
 keyPressedCallback _key _modifierKeys  = return ()
