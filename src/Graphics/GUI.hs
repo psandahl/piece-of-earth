@@ -58,21 +58,26 @@ delete gui' = do
 
 -- | Animate the GUI.
 animate :: GUI -> Render State GUI
-animate gui' =
-    case centerFlash gui' of
-        Just centerFlash' -> do
-            frameTime <- realToFrac <$> frameDuration
-            let decrease = 1.5 * frameTime * (alpha $ renderParams centerFlash')
-                alpha' = (alpha $ renderParams centerFlash') - decrease
-            if alpha' < 0 then
-                do Text.delete (text centerFlash')
-                   return gui' { centerFlash = Nothing }
-            else
-                do let newRenderParams = (renderParams centerFlash') { alpha = alpha' }
-                       newFlash = centerFlash' { renderParams = newRenderParams }
-                   return gui' { centerFlash = Just newFlash }
+animate = animateCenterFlash
 
-        Nothing -> return gui'
+animateCenterFlash :: GUI -> Render State GUI
+animateCenterFlash gui'
+    | isJust (centerFlash gui') = do
+        frameTime <- realToFrac <$> frameDuration
+        let centerFlash' = fromJust $ centerFlash gui'
+            decSpeed = 1.5
+            currAlpha = alpha $ renderParams centerFlash'
+            newAlpha = currAlpha - frameTime * decSpeed
+        if newAlpha <= 0 then
+            do Text.delete (text centerFlash')
+               return gui' { centerFlash = Nothing }
+        else
+            do let newParams = (renderParams centerFlash') { alpha = newAlpha }
+                   newFlash = centerFlash' { renderParams = newParams }
+               return gui' { centerFlash = Just newFlash }
+
+    -- No active center flash.
+    | otherwise = return gui'
 
 -- | Render the GUI.
 render :: GUI -> Render State ()
@@ -111,13 +116,12 @@ newCenterFlash :: MonadIO m => String -> GUI -> m TextEntity
 newCenterFlash str gui' = do
     text' <- Text.init (centerFlashFont gui') str
     return TextEntity { text = text', renderParams = centerFlashRenderParams }
-
--- | Setting 'RenderParams' for the center flash.
-centerFlashRenderParams :: RenderParams
-centerFlashRenderParams =
-    TextRenderer.defaultRenderParams
-        { size = 26
-        , position = CenterAt 0 0
-        , color = V3 1 1 0
-        , alpha = 2 -- Value will be clamped to 1. But neat trick for animation.
-        }
+    where
+        centerFlashRenderParams :: RenderParams
+        centerFlashRenderParams =
+            TextRenderer.defaultRenderParams
+                { size = 26
+                , position = CenterAt 0 0
+                , color = V3 1 1 0
+                , alpha = 2 -- Value will be clamped to 1. But neat trick for animation.
+                }
