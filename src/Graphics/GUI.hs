@@ -24,12 +24,13 @@ import           BigE.Util              (eitherTwo)
 import           Control.Monad          (when)
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Maybe             (fromJust, isJust)
-import           Engine.State           (State (gui, userInput))
+import           Engine.State           (State (frameRate, gui, userInput))
 import           Graphics.Types         (GUI (..), TextEntity (..),
                                          UserInput (..))
 import           Linear                 (V3 (..))
 import           Prelude                hiding (init)
 import           System.FilePath        ((</>))
+import           Text.Printf            (printf)
 
 -- | Initialize the GUI given the path to the resource base directory.
 init :: MonadIO m => FilePath -> m (Either String GUI)
@@ -64,7 +65,19 @@ delete gui' = do
 
 -- | Animate the GUI.
 animate :: GUI -> Render State GUI
-animate = animateCenterFlash
+animate gui' =
+    animateStatus gui' >>= animateCenterFlash
+
+animateStatus :: GUI -> Render State GUI
+animateStatus gui' = do
+    state <- getAppStateUnsafe
+
+    let statusBar' = statusBar gui'
+        fps = frameRate state
+        str = printf "fps: %0.2f" fps
+
+    newStatusBarText <- Text.update str (text statusBar')
+    return gui' { statusBar = statusBar' { text = newStatusBarText }}
 
 animateCenterFlash :: GUI -> Render State GUI
 animateCenterFlash gui'

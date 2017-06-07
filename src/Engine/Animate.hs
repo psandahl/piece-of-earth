@@ -35,7 +35,7 @@ calculateFrameRate = do
     let oldFps = frameRate state
         fps = 1.0 / (duration + 0.0000001) -- Add a small extra to avoid div with 0.
         fpsDiff = abs $ oldFps - fps
-    when (fpsDiff > 0.05 * oldFps) $
+    when (fpsDiff > 0.01 * oldFps) $
         putAppState (state { frameRate = fps })
 
 -- | Animate the GUI.
