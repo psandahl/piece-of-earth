@@ -9,10 +9,9 @@ module Engine.State
     ( State (..)
     ) where
 
-import           Graphics.Camera (Camera)
-import           Graphics.GL     (GLfloat)
-import           Graphics.Types  (GUI, Terrain, UserInput)
-import           Linear          (M44)
+import           Graphics.GL    (GLfloat)
+import           Graphics.Types (Camera, GUI, Terrain, UserInput)
+import           Linear         (M44)
 
 -- | The state of the application. It will be carried by the runtime IORef
 -- variable.

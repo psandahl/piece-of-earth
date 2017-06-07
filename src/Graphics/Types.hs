@@ -6,7 +6,8 @@
 -- Stability: experimental
 -- Portability: portable
 module Graphics.Types
-    ( Terrain (..)
+    ( Camera (..)
+    , Terrain (..)
     , GUI (..)
     , TextEntity (..)
     , UserInput (..)
@@ -18,6 +19,13 @@ import           BigE.TextRenderer      (RenderParams, TextRenderer)
 import           BigE.TextRenderer.Font (Font)
 import           BigE.TextRenderer.Text (Text)
 import           BigE.Types             (Location, Program)
+import           Graphics.GL            (GLfloat)
+import           Linear                 (M44)
+
+-- | The camera record.
+newtype Camera = Camera
+    { view :: M44 GLfloat
+    } deriving Show
 
 -- | Terrain record.
 data Terrain = Terrain

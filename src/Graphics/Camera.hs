@@ -6,19 +6,14 @@
 -- Stability: experimental
 -- Portability: portable
 module Graphics.Camera
-    ( Camera
-    , init
+    ( init
     , matrix
     ) where
 
-import           Graphics.GL (GLfloat)
-import           Linear      (M44, V3 (..), lookAt)
-import           Prelude     hiding (init)
-
--- | The camera record.
-newtype Camera = Camera
-    { view :: M44 GLfloat
-    } deriving Show
+import           Graphics.GL    (GLfloat)
+import           Graphics.Types (Camera (..))
+import           Linear         (M44, V3 (..), lookAt)
+import           Prelude        hiding (init)
 
 -- | Initialze the camera.
 init :: Camera
