@@ -47,6 +47,18 @@ keyPressedCallback Key'W _modifierKeys = do
         do putAppState $ state { userInput = userInp { renderWireframe = True }}
            requestCenterFlash "[+wireframe]"
 
+-- Handle S, status bar activation.
+keyPressedCallback Key'S _modifiedKeys = do
+    state <- getAppStateUnsafe
+    let userInp = userInput state
+
+    if renderStatusBar userInp then
+        do putAppState $ state { userInput = userInp { renderStatusBar = False }}
+           requestCenterFlash "[-status bar]"
+    else
+        do putAppState $ state { userInput = userInp { renderStatusBar = True }}
+           requestCenterFlash "[+status bar]"
+
 -- Default - no - action.
 keyPressedCallback _key _modifierKeys  = return ()
 

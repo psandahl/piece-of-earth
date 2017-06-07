@@ -39,6 +39,9 @@ data GUI = GUI
     , centerFlashFont :: !Font
       -- ^ The 'Font' used for center flash texts.
 
+    , statusBar       :: !TextEntity
+      -- ^ The top status bar. Always updated but not always shown.
+
     , centerFlash     :: !(Maybe TextEntity)
       -- ^ The 'TextEntity' for the center flash.
     } deriving Show
@@ -53,6 +56,9 @@ data TextEntity = TextEntity
 data UserInput = UserInput
     { renderWireframe :: !Bool
       -- ^ Render the main models as wireframes.
+
+    , renderStatusBar :: !Bool
+      -- ^ Render a status bar at top of screen.
     } deriving Show
 
 -- | Set default values for the 'UserInput'.
@@ -60,4 +66,5 @@ defaultUserInput :: UserInput
 defaultUserInput =
     UserInput
         { renderWireframe = False
+        , renderStatusBar = False
         }

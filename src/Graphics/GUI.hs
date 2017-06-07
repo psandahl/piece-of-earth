@@ -24,8 +24,9 @@ import           BigE.Util              (eitherTwo)
 import           Control.Monad          (when)
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Maybe             (fromJust, isJust)
-import           Engine.State           (State (gui))
-import           Graphics.Types         (GUI (..), TextEntity (..))
+import           Engine.State           (State (gui, userInput))
+import           Graphics.Types         (GUI (..), TextEntity (..),
+                                         UserInput (..))
 import           Linear                 (V3 (..))
 import           Prelude                hiding (init)
 import           System.FilePath        ((</>))
@@ -38,11 +39,16 @@ init resourceDir = do
     eCenterFlashFont <- loadCenterFlashFont resourceDir
 
     case eitherTwo (eTextRenderer, eCenterFlashFont) of
-        Right (textRenderer', centerFlashFont') ->
+        Right (textRenderer', centerFlashFont') -> do
+
+            statusBar' <-
+                mkStatusBar "x: 0.0 y: 0.0 z: 0.0. terrainHeight: 0.0. fps: 0.0. frame: 123456"
+                            centerFlashFont'
 
             return $
                 Right GUI { textRenderer = textRenderer'
                           , centerFlashFont = centerFlashFont'
+                          , statusBar = statusBar'
                           , centerFlash = Nothing
                           }
 
@@ -82,6 +88,21 @@ animateCenterFlash gui'
 -- | Render the GUI.
 render :: GUI -> Render State ()
 render gui' = do
+    renderStatus gui'
+    renderCenterFlash gui'
+
+renderStatus :: GUI -> Render State ()
+renderStatus gui' = do
+    state <- getAppStateUnsafe
+
+    when (renderStatusBar $ userInput state) $ do
+        let statusBar' = statusBar gui'
+        TextRenderer.render (text statusBar')
+                            (renderParams statusBar')
+                            (textRenderer gui')
+
+renderCenterFlash :: GUI -> Render State ()
+renderCenterFlash gui' = do
     let mCenterFlash = centerFlash gui'
     when (isJust mCenterFlash) $ do
         let centerFlash' = fromJust mCenterFlash
@@ -110,6 +131,22 @@ loadCenterFlashFont :: MonadIO m => FilePath -> m (Either String Font)
 loadCenterFlashFont resourceDir = do
     let fontFile = resourceDir </> "fonts" </> "purisa-70.fnt"
     Font.fromFile fontFile
+
+-- | Make an initial status bar text. Make sure that it is long enough to
+-- be able to cover all future text updates.
+mkStatusBar :: MonadIO m => String -> Font -> m TextEntity
+mkStatusBar str font = do
+    text' <- Text.init font str
+    return TextEntity { text = text', renderParams = statusBarRenderParams }
+    where
+        statusBarRenderParams :: RenderParams
+        statusBarRenderParams =
+            TextRenderer.defaultRenderParams
+                { size = 15
+                , position = LeftAt (-1) (-1)
+                , color = V3 1 1 1
+                , alpha = 1
+                }
 
 -- | Creata a new 'TextEntity' for the center flash.
 newCenterFlash :: MonadIO m => String -> GUI -> m TextEntity
