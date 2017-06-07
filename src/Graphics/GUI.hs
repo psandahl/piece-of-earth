@@ -5,6 +5,8 @@
 -- Maintainer: Patrik Sandahl <patrik.sandahl@gmail.com>
 -- Stability: experimental
 -- Portability: portable
+
+-- Module that implements
 module Graphics.GUI
     ( init
     , delete
@@ -24,7 +26,7 @@ import           BigE.Util              (eitherTwo)
 import           Control.Monad          (when)
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Maybe             (fromJust, isJust)
-import           Engine.State           (State (frameRate, gui, userInput))
+import           Engine.State           (State (frameCount, frameRate, gui, userInput))
 import           Graphics.Types         (GUI (..), TextEntity (..),
                                          UserInput (..))
 import           Linear                 (V3 (..))
@@ -74,7 +76,8 @@ animateStatus gui' = do
 
     let statusBar' = statusBar gui'
         fps = frameRate state
-        str = printf "fps: %0.2f" fps
+        count = frameCount state
+        str = printf "fps: %0.2f. frame: %d" fps count
 
     newStatusBarText <- Text.update str (text statusBar')
     return gui' { statusBar = statusBar' { text = newStatusBarText }}

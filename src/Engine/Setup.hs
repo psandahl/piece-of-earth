@@ -44,6 +44,7 @@ setup options = do
                               , camera = Camera.init
                               , terrain = terrain'
                               , gui = gui'
+                              , frameCount = 0
                               , frameRate = 0
                               , userInput = defaultUserInput
                               }

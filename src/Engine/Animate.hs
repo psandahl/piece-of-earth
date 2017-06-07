@@ -10,7 +10,7 @@ module Engine.Animate
     ) where
 
 import           BigE.Runtime  (Render, frameDuration, getAppStateUnsafe,
-                                putAppState)
+                                modifyAppState, putAppState)
 import           Control.Monad (when)
 import           Engine.State  (State (..))
 import qualified Graphics.GUI  as GUI
@@ -18,12 +18,20 @@ import qualified Graphics.GUI  as GUI
 -- | Prepare things that will move or shake to next renderering phase.
 animate :: Render State ()
 animate = do
-    -- Start by calculating the current frame rate. It will be used by
-    -- later animations.
+    -- Frame count will be used by later animations. Perform early.
+    increaseFrameCount
+
+    -- Frame rate will be used by later animations. Perform early.
     calculateFrameRate
 
     -- Animate the GUI.
     animateGUI
+
+-- | Increase the frame counter.
+increaseFrameCount :: Render State ()
+increaseFrameCount =
+    modifyAppState $ \state ->
+        state { frameCount = frameCount state + 1 }
 
 -- | Calculate the frame rate for the frame. Only update the counter if it
 -- differs more than five percent of the old counter's value.

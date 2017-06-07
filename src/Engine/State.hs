@@ -33,6 +33,9 @@ data State = State
     , gui         :: !GUI
       -- ^ The application's GUI.
 
+    , frameCount  :: !Int
+      -- ^ The current frame number.
+
     , frameRate   :: !Double
       -- ^ The current frame rate. Will only change if it's differ significantly
       -- from last frame's measured rate.
