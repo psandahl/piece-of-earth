@@ -19,6 +19,7 @@ import           BigE.Mesh              (Mesh)
 import qualified BigE.Mesh              as Mesh
 import qualified BigE.Program           as Program
 import           BigE.Runtime           (Render)
+import           BigE.TerrainGrid       (TerrainGrid)
 import qualified BigE.TerrainGrid       as TerrainGrid
 import           BigE.Types             (BufferUsage (..), Primitive (..),
                                          Program, ShaderType (..), setUniform)
@@ -39,11 +40,12 @@ init resourceDir = do
     case eProgram of
         Right program' -> do
             mvpLoc' <- Program.getUniformLocation program' "mvp"
-            mesh' <- dummyMesh
+            (terrainGrid', mesh') <- dummyMesh
 
             return $
                 Right Terrain { program = program'
                               , mvpLoc = mvpLoc'
+                              , terrainGrid = terrainGrid'
                               , mesh = mesh'
                               }
         Left err -> return $ Left err
@@ -72,7 +74,7 @@ loadProgram resourceDir = do
                      , (FragmentShader, fragmentShader)
                      ]
 
-dummyMesh :: MonadIO m => m Mesh
+dummyMesh :: MonadIO m => m (TerrainGrid, Mesh)
 dummyMesh = do
     let Right imageMap = ImageMap.fromVector (5, 5) $
             fromList [ 0, 0, 0, 0, 0
@@ -81,6 +83,7 @@ dummyMesh = do
                      , 0, 0, 0, 0, 0
                      , 0, 0, 0, 0, 0
                      ]
-        Right terrainGrid = TerrainGrid.fromImageMap 1 imageMap
-        (verts, indices) = TerrainGrid.asVertP terrainGrid
-    Mesh.fromVector StaticDraw verts indices
+        Right terrainGrid' = TerrainGrid.fromImageMap 1 imageMap
+        (verts, indices) = TerrainGrid.asVertP terrainGrid'
+    mesh' <- Mesh.fromVector StaticDraw verts indices
+    return (terrainGrid', mesh')
