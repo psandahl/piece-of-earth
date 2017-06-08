@@ -12,6 +12,7 @@ module Graphics.Terrain
     ( init
     , delete
     , render
+    , terrainHeight
     ) where
 
 import qualified BigE.ImageMap          as ImageMap
@@ -64,6 +65,10 @@ render vp terrain = do
     Mesh.render Triangles $ mesh terrain
     Mesh.disable
     Program.disable
+
+-- | Get the terrain height for the given x z spot in model space.
+terrainHeight :: (GLfloat, GLfloat) -> Terrain -> GLfloat
+terrainHeight pos = TerrainGrid.terrainHeight pos . terrainGrid
 
 -- | Load the program used for terrain rendering.
 loadProgram :: MonadIO m => FilePath -> m (Either String Program)
