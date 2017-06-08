@@ -9,11 +9,12 @@ module Engine.Animate
     ( animate
     ) where
 
-import           BigE.Runtime  (Render, frameDuration, getAppStateUnsafe,
-                                modifyAppState, putAppState)
-import           Control.Monad (when)
-import           Engine.State  (State (..))
-import qualified Graphics.GUI  as GUI
+import           BigE.Runtime    (Render, frameDuration, getAppStateUnsafe,
+                                  modifyAppState, putAppState)
+import           Control.Monad   (when)
+import           Engine.State    (State (..))
+import qualified Graphics.Camera as Camera
+import qualified Graphics.GUI    as GUI
 
 -- | Prepare things that will move or shake to next renderering phase.
 animate :: Render State ()
@@ -23,6 +24,9 @@ animate = do
 
     -- Frame rate will be used by later animations. Perform early.
     calculateFrameRate
+
+    -- Camera positions will be used by later animations. Perform early.
+    animateCamera
 
     -- Animate the GUI.
     animateGUI
@@ -45,6 +49,14 @@ calculateFrameRate = do
         fpsDiff = abs $ oldFps - fps
     when (fpsDiff > 0.01 * oldFps) $
         putAppState (state { frameRate = fps })
+
+-- | Animate the Camera
+animateCamera :: Render State ()
+animateCamera = do
+    state <- getAppStateUnsafe
+
+    camera' <- Camera.animate $ camera state
+    putAppState (state { camera = camera' })
 
 -- | Animate the GUI.
 animateGUI :: Render State ()

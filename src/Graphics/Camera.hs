@@ -7,19 +7,23 @@
 -- Portability: portable
 module Graphics.Camera
     ( init
-    , matrix
+    , animate
     ) where
 
-import           Graphics.GL    (GLfloat)
+import           BigE.Runtime   (Render)
+import           Engine.State   (State)
 import           Graphics.Types (Camera (..))
-import           Linear         (M44, V3 (..), lookAt)
+import           Linear         (V3 (..), lookAt)
 import           Prelude        hiding (init)
 
--- | Initialze the camera.
+-- | Initialze the 'Camera'.
 init :: Camera
 init =
-    Camera { view = lookAt (V3 0 3 0) (V3 2 0 2) (V3 0 1 0) }
+    Camera
+        { viewMatrix = lookAt (V3 0 3 0) (V3 2 0 2) (V3 0 1 0)
+        , cameraPosition = V3 0 3 0
+        }
 
--- | Get the 'Camera's matrix.
-matrix :: Camera -> M44 GLfloat
-matrix = view
+-- | Animate the 'Camera'
+animate :: Camera -> Render State Camera
+animate = return

@@ -13,11 +13,10 @@ import           BigE.Runtime     (Render, getAppStateUnsafe)
 import           Control.Monad    (when)
 import           Data.Bits        ((.|.))
 import           Engine.State     (State (..))
-import           Graphics.Camera  (matrix)
 import qualified Graphics.GL      as GL
 import qualified Graphics.GUI     as GUI
 import qualified Graphics.Terrain as Terrain
-import           Graphics.Types   (UserInput (..))
+import           Graphics.Types   (Camera (..), UserInput (..))
 import           Linear           ((!*!))
 
 -- | The master rendering callback.
@@ -36,7 +35,7 @@ render = do
 
     -- Calculate the view/perspective matrix. Model matrices will be added
     -- in local renderers.
-    let vp = perspective state !*! matrix (camera state)
+    let vp = perspective state !*! viewMatrix (camera state)
         userInp = userInput state
 
     when (renderWireframe userInp) $

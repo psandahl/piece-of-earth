@@ -26,8 +26,8 @@ import           BigE.Util              (eitherTwo)
 import           Control.Monad          (when)
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Maybe             (fromJust, isJust)
-import           Engine.State           (State (frameCount, frameRate, gui, userInput))
-import           Graphics.Types         (GUI (..), TextEntity (..),
+import           Engine.State           (State (camera, frameCount, frameRate, gui, userInput))
+import           Graphics.Types         (Camera (..), GUI (..), TextEntity (..),
                                          UserInput (..))
 import           Linear                 (V3 (..))
 import           Prelude                hiding (init)
@@ -45,7 +45,7 @@ init resourceDir = do
         Right (textRenderer', centerFlashFont') -> do
 
             statusBar' <-
-                mkStatusBar "x: 0.0 y: 0.0 z: 0.0. terrainHeight: 0.0. fps: 0.0. frame: 123456"
+                mkStatusBar "                                                                        "
                             centerFlashFont'
 
             return $
@@ -75,9 +75,11 @@ animateStatus gui' = do
     state <- getAppStateUnsafe
 
     let statusBar' = statusBar gui'
+        V3 x y z = cameraPosition $ camera state
         fps = frameRate state
         count = frameCount state
-        str = printf "fps: %0.2f. frame: %d" fps count
+        str = printf "x: %0.1f y: %0.1f z: %0.1f, fps: %0.1f, frame: %d"
+                     x y z fps count
 
     newStatusBarText <- Text.update str (text statusBar')
     return gui' { statusBar = statusBar' { text = newStatusBarText }}

@@ -20,11 +20,16 @@ import           BigE.TextRenderer.Font (Font)
 import           BigE.TextRenderer.Text (Text)
 import           BigE.Types             (Location, Program)
 import           Graphics.GL            (GLfloat)
-import           Linear                 (M44)
+import           Linear                 (M44, V3 (..))
 
 -- | The camera record.
-newtype Camera = Camera
-    { view :: M44 GLfloat
+data Camera = Camera
+    { viewMatrix     :: !(M44 GLfloat)
+      -- ^ The camera's view matrix. Calculated during init/animate.
+
+    , cameraPosition :: !(V3 GLfloat)
+      -- ^ The camera's current position in model space. Calculated during
+      -- init/animate.
     } deriving Show
 
 -- | Terrain record.
