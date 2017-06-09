@@ -26,7 +26,8 @@ import           BigE.Util              (eitherTwo)
 import           Control.Monad          (when)
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Maybe             (fromJust, isJust)
-import           Engine.State           (State (camera, frameCount, frameRate, gui, userInput))
+import           Engine.State           (State (..))
+import qualified Graphics.Terrain       as Terrain
 import           Graphics.Types         (Camera (..), GUI (..), TextEntity (..),
                                          UserInput (..))
 import           Linear                 (V3 (..))
@@ -36,10 +37,10 @@ import           Text.Printf            (printf)
 
 -- | Initialize the GUI given the path to the resource base directory.
 init :: MonadIO m => FilePath -> m (Either String GUI)
-init resourceDir = do
+init baseDir = do
     -- Start with things that can fail.
     eTextRenderer <- TextRenderer.init
-    eCenterFlashFont <- loadCenterFlashFont resourceDir
+    eCenterFlashFont <- loadCenterFlashFont baseDir
 
     case eitherTwo (eTextRenderer, eCenterFlashFont) of
         Right (textRenderer', centerFlashFont') -> do
@@ -76,10 +77,11 @@ animateStatus gui' = do
 
     let statusBar' = statusBar gui'
         V3 x y z = cameraPosition $ camera state
+        height = Terrain.terrainHeight (x, z) $ terrain state
         fps = frameRate state
         count = frameCount state
-        str = printf "x: %0.1f y: %0.1f z: %0.1f, fps: %0.1f, frame: %d"
-                     x y z fps count
+        str = printf "x: %0.1f y: %0.1f z: %0.1f, height: %0.1f, fps: %0.1f, frame: %d"
+                     x y z height fps count
 
     newStatusBarText <- Text.update str (text statusBar')
     return gui' { statusBar = statusBar' { text = newStatusBarText }}
@@ -146,8 +148,8 @@ requestCenterFlash str = do
 
 -- | Load the center flash font from the resource directory.
 loadCenterFlashFont :: MonadIO m => FilePath -> m (Either String Font)
-loadCenterFlashFont resourceDir = do
-    let fontFile = resourceDir </> "fonts" </> "purisa-70.fnt"
+loadCenterFlashFont baseDir = do
+    let fontFile = baseDir </> "fonts" </> "purisa-70.fnt"
     Font.fromFile fontFile
 
 -- | Make an initial status bar text. Make sure that it is long enough to
