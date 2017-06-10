@@ -35,8 +35,8 @@ windowSizeCallback width height =
 -- | Callback to handle user pressing keys.
 keyPressedCallback :: Key -> ModifierKeys -> Render State ()
 
--- Handle W, wireframe activation.
-keyPressedCallback Key'W _modifierKeys = do
+-- Handle F1, wireframe activation.
+keyPressedCallback Key'F1 _modifierKeys = do
     state <- getAppStateUnsafe
     let userInp = userInput state
 
@@ -47,8 +47,8 @@ keyPressedCallback Key'W _modifierKeys = do
         do putAppState $ state { userInput = userInp { renderWireframe = True }}
            requestCenterFlash "[+wireframe]"
 
--- Handle S, status bar activation.
-keyPressedCallback Key'S _modifiedKeys = do
+-- Handle F2, status bar activation.
+keyPressedCallback Key'F2 _modifiedKeys = do
     state <- getAppStateUnsafe
     let userInp = userInput state
 
