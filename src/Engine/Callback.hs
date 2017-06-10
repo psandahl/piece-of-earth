@@ -35,7 +35,7 @@ windowSizeCallback width height =
 -- | Callback to handle user pressing keys.
 keyPressedCallback :: Key -> ModifierKeys -> Render State ()
 
--- Handle F1, wireframe activation.
+-- Handle F1, wireframe toggle.
 keyPressedCallback Key'F1 _modifierKeys = do
     state <- getAppStateUnsafe
     let userInp = userInput state
@@ -47,8 +47,8 @@ keyPressedCallback Key'F1 _modifierKeys = do
         do putAppState $ state { userInput = userInp { renderWireframe = True }}
            requestCenterFlash "[+wireframe]"
 
--- Handle F2, status bar activation.
-keyPressedCallback Key'F2 _modifiedKeys = do
+-- Handle F2, status bar toggle.
+keyPressedCallback Key'F2 _modifierKeys = do
     state <- getAppStateUnsafe
     let userInp = userInput state
 
@@ -59,11 +59,25 @@ keyPressedCallback Key'F2 _modifiedKeys = do
         do putAppState $ state { userInput = userInp { renderStatusBar = True }}
            requestCenterFlash "[+status bar]"
 
+-- Handle left arrow, activate turning left.
+keyPressedCallback Key'Left _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { turnLeft = True }
+
 -- Default - no - action.
 keyPressedCallback _key _modifierKeys  = return ()
 
 -- | Callback to handle user releasing keys.
 keyReleasedCallback :: Key -> ModifierKeys -> Render State ()
 
+-- Handle left arrow, deactivate turning left.
+keyReleasedCallback Key'Left _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { turnLeft = False }
+
 -- Default - no - action.
 keyReleasedCallback _key _modifierKeys  = return ()
+
+-- Utility function to modify the state's 'UserInput'.
+modifyUserInput :: (UserInput -> UserInput) -> Render State ()
+modifyUserInput g =
+    modifyAppState $ \state ->
+        state { userInput = g (userInput state) }

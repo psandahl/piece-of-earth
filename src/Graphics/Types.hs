@@ -72,13 +72,37 @@ data TextEntity = TextEntity
     , renderParams :: !RenderParams
     } deriving Show
 
--- | Values set by user input. Used in animate or renders callbacks.
+-- | Values set by user input. Used in animate or render callbacks.
 data UserInput = UserInput
     { renderWireframe :: !Bool
       -- ^ Render the main models as wireframes.
 
     , renderStatusBar :: !Bool
       -- ^ Render a status bar at top of screen.
+
+    , turnLeft        :: !Bool
+      -- ^ Turn (rotate) the camera left.
+
+    , turnRight       :: !Bool
+      -- ^ Turn (rotate) the camera right.
+
+    , goForward       :: !Bool
+      -- ^ Move the camera forward.
+
+    , goBackward      :: !Bool
+      -- ^ Move the camera backward.
+
+    , lookUp          :: !Bool
+      -- ^ Make the camera look up.
+
+    , lookDown        :: !Bool
+      -- ^ Make the camera look down.
+
+    , goUp            :: !Bool
+      -- ^ Increase the height of the camera.
+
+    , goDown          :: !Bool
+      -- ^ Decrease the height of the camera.
     } deriving Show
 
 -- | Set default values for the 'UserInput'.
@@ -87,4 +111,12 @@ defaultUserInput =
     UserInput
         { renderWireframe = False
         , renderStatusBar = False
+        , turnLeft = False
+        , turnRight = False
+        , goForward = False
+        , goBackward = False
+        , lookUp = False
+        , lookDown = False
+        , goUp = False
+        , goDown = False
         }
