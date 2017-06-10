@@ -53,6 +53,9 @@ data GUI = GUI
     { textRenderer    :: !TextRenderer
       -- ^ The GUI's 'TextRenderer'.
 
+    , statusBarFont   :: !Font
+      -- ^ The 'Font' used for status bar texts.
+
     , centerFlashFont :: !Font
       -- ^ The 'Font' used for center flash texts.
 

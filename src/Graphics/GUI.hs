@@ -22,7 +22,7 @@ import qualified BigE.TextRenderer      as TextRenderer
 import           BigE.TextRenderer.Font (Font)
 import qualified BigE.TextRenderer.Font as Font
 import qualified BigE.TextRenderer.Text as Text
-import           BigE.Util              (eitherTwo)
+import           BigE.Util              (eitherThree)
 import           Control.Monad          (when)
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Maybe             (fromJust, isJust)
@@ -40,17 +40,19 @@ init :: MonadIO m => FilePath -> m (Either String GUI)
 init baseDir = do
     -- Start with things that can fail.
     eTextRenderer <- TextRenderer.init
+    eStatusBarFont <- loadStatusBarFont baseDir
     eCenterFlashFont <- loadCenterFlashFont baseDir
 
-    case eitherTwo (eTextRenderer, eCenterFlashFont) of
-        Right (textRenderer', centerFlashFont') -> do
+    case eitherThree (eTextRenderer, eStatusBarFont, eCenterFlashFont) of
+        Right (textRenderer', statusBarFont', centerFlashFont') -> do
 
             statusBar' <-
                 mkStatusBar "                                                                        "
-                            centerFlashFont'
+                            statusBarFont'
 
             return $
                 Right GUI { textRenderer = textRenderer'
+                          , statusBarFont = statusBarFont'
                           , centerFlashFont = centerFlashFont'
                           , statusBar = statusBar'
                           , centerFlash = Nothing
@@ -152,6 +154,12 @@ loadCenterFlashFont baseDir = do
     let fontFile = baseDir </> "fonts" </> "purisa-70.fnt"
     Font.fromFile fontFile
 
+-- | Load the status bar font from the resource directory.
+loadStatusBarFont :: MonadIO m => FilePath -> m (Either String Font)
+loadStatusBarFont baseDir = do
+    let fontFile = baseDir </> "fonts" </> "ubuntu-mono-45.fnt"
+    Font.fromFile fontFile
+
 -- | Make an initial status bar text. Make sure that it is long enough to
 -- be able to cover all future text updates.
 mkStatusBar :: MonadIO m => String -> Font -> m TextEntity
@@ -162,7 +170,7 @@ mkStatusBar str font = do
         statusBarRenderParams :: RenderParams
         statusBarRenderParams =
             TextRenderer.defaultRenderParams
-                { size = 15
+                { size = 10
                 , position = LeftAt (-1) (-1)
                 , color = V3 1 1 1
                 , alpha = 1
