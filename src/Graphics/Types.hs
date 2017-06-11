@@ -31,6 +31,9 @@ data Camera = Camera
     , cameraPosition :: !(V3 GLfloat)
       -- ^ The camera's current position in model space. Calculated during
       -- init/animate.
+
+    , heading        :: !(V3 GLfloat)
+      -- ^ Unit vector telling the direction in which the camera is heading.
     } deriving Show
 
 -- | Terrain record.

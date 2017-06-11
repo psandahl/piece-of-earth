@@ -63,6 +63,10 @@ keyPressedCallback Key'F2 _modifierKeys = do
 keyPressedCallback Key'Left _modifierKeys =
     modifyUserInput $ \userInp -> userInp { turnLeft = True }
 
+-- Handle right arrow, activate turning right.
+keyPressedCallback Key'Right _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { turnRight = True }
+
 -- Default - no - action.
 keyPressedCallback _key _modifierKeys  = return ()
 
@@ -72,6 +76,10 @@ keyReleasedCallback :: Key -> ModifierKeys -> Render State ()
 -- Handle left arrow, deactivate turning left.
 keyReleasedCallback Key'Left _modifierKeys =
     modifyUserInput $ \userInp -> userInp { turnLeft = False }
+
+-- Handle left arrow, deactivate turning right.
+keyReleasedCallback Key'Right _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { turnRight = False }
 
 -- Default - no - action.
 keyReleasedCallback _key _modifierKeys  = return ()
