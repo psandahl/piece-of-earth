@@ -17,7 +17,7 @@ import           Engine.State   (State (userInput))
 import           Graphics.GL    (GLfloat)
 import           Graphics.Types (Camera (..), UserInput (..))
 import           Linear         (M33, M44, V3 (..), V4 (..), identity, lookAt,
-                                 normalize, (!*), (!*!))
+                                 normalize, zero, (!*), (!*!), (*^))
 import           Prelude        hiding (init)
 
 -- | Initialze the 'Camera'.
@@ -37,22 +37,29 @@ animate camera = do
     userInp <- userInput <$> getAppStateUnsafe
     duration <- realToFrac <$> frameDuration
 
-    -- Calculate the new camera heading direction.
+    -- Calculate the new camera heading direction. Heading always shall have
+    -- an y value of zero. TODO: check if it must be forced.
     let leftMatrix = leftRotation duration userInp
         rightMatrix = rightRotation duration userInp
         heading' = normalize $ (leftMatrix !*! rightMatrix) !* heading camera
 
-    --liftIO $ print heading'
+    -- From the heading calculate a new camera position.
+    let forwardVector = forward duration heading' userInp
+        backwardVector = backward duration heading' userInp
+        cameraPosition' = cameraPosition camera + forwardVector + backwardVector
 
     -- Calculate the spot where the camera is looking and then make the new
     -- camera view matrix.
-    let viewSpot = cameraPosition camera + heading'
-        viewMatrix' = lookAt (cameraPosition camera) viewSpot yAxis
+    let viewSpot = cameraPosition' + heading'
+        viewMatrix' = lookAt cameraPosition' viewSpot yAxis
 
     --liftIO $ print viewSpot
 
     -- Give back the new camera.
-    return camera { viewMatrix = viewMatrix', heading = heading' }
+    return camera { viewMatrix = viewMatrix'
+                  , cameraPosition = cameraPosition'
+                  , heading = heading'
+                  }
 
 -- | Make a left camera rotation matrix proportional to the frame duration
 -- and rotation speed.
@@ -72,6 +79,22 @@ rightRotation duration userInp
         in mkRotate33 yAxis (-radians)
     | otherwise = identity
 
+-- | Calculate a forward motion vector from the heading, proportional to
+-- frame duration and moving speed.
+forward :: GLfloat -> V3 GLfloat -> UserInput -> V3 GLfloat
+forward duration heading' userInp
+    | goForward userInp =
+        (duration * movingSpeed) *^ heading'
+    | otherwise = zero
+
+-- | Calculate a backward motion vector from the heading, proportional to
+-- frame duration and moving speed.
+backward :: GLfloat -> V3 GLfloat -> UserInput -> V3 GLfloat
+backward duration heading' userInp
+    | goBackward userInp =
+        (-(duration * movingSpeed)) *^ heading'
+    | otherwise = zero
+
 -- | The unit vector pointing in the positive y-direction, i.e. up.
 yAxis :: V3 GLfloat
 yAxis = V3 0 1 0
@@ -79,6 +102,10 @@ yAxis = V3 0 1 0
 -- | Radians to rotate per second.
 rotationSpeed :: GLfloat
 rotationSpeed = pi
+
+-- Model space units to move per second.
+movingSpeed :: GLfloat
+movingSpeed = 1
 
 -- | Make a M33 rotation matrix.
 mkRotate33 :: V3 GLfloat -> GLfloat -> M33 GLfloat

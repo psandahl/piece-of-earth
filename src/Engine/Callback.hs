@@ -67,6 +67,14 @@ keyPressedCallback Key'Left _modifierKeys =
 keyPressedCallback Key'Right _modifierKeys =
     modifyUserInput $ \userInp -> userInp { turnRight = True }
 
+-- Handle up arrow, activate go forward.
+keyPressedCallback Key'Up _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { goForward = True }
+
+-- Handle down arrow, activate go backward.
+keyPressedCallback Key'Down _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { goBackward = True }
+
 -- Default - no - action.
 keyPressedCallback _key _modifierKeys  = return ()
 
@@ -80,6 +88,14 @@ keyReleasedCallback Key'Left _modifierKeys =
 -- Handle left arrow, deactivate turning right.
 keyReleasedCallback Key'Right _modifierKeys =
     modifyUserInput $ \userInp -> userInp { turnRight = False }
+
+-- Handle up arrow, deacativate go forward.
+keyReleasedCallback Key'Up _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { goForward = False }
+
+-- Handle down arrow, deactivate go backward.
+keyReleasedCallback Key'Down _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { goBackward = False }
 
 -- Default - no - action.
 keyReleasedCallback _key _modifierKeys  = return ()
