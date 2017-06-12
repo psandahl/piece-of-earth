@@ -75,6 +75,14 @@ keyPressedCallback Key'Up _modifierKeys =
 keyPressedCallback Key'Down _modifierKeys =
     modifyUserInput $ \userInp -> userInp { goBackward = True }
 
+-- Handle pgup, activate look up.
+keyPressedCallback Key'PageUp _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { lookUp = True }
+
+-- | Handle pgdn, activate look down.
+keyPressedCallback Key'PageDown _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { lookDown = True }
+
 -- Default - no - action.
 keyPressedCallback _key _modifierKeys  = return ()
 
@@ -96,6 +104,14 @@ keyReleasedCallback Key'Up _modifierKeys =
 -- Handle down arrow, deactivate go backward.
 keyReleasedCallback Key'Down _modifierKeys =
     modifyUserInput $ \userInp -> userInp { goBackward = False }
+
+-- Handle pgup, deactivate look up.
+keyReleasedCallback Key'PageUp _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { lookUp = False }
+
+-- Handle pgdn, deactivate look down.
+keyReleasedCallback Key'PageDown _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { lookDown = False }
 
 -- Default - no - action.
 keyReleasedCallback _key _modifierKeys  = return ()

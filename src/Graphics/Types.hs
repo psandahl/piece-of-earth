@@ -34,6 +34,9 @@ data Camera = Camera
 
     , yaw            :: !GLfloat
       -- ^ The yaw angle (the camera's rotation on the y-axis).
+
+    , pitch          :: !GLfloat
+      -- ^ The pitch angle (the camera's rotation of the x-axis).
     } deriving Show
 
 -- | Terrain record.

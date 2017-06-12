@@ -12,12 +12,12 @@ module Graphics.Camera
 
 import           BigE.Math      (mkRotate, toRadians)
 import           BigE.Runtime   (Render, frameDuration, getAppStateUnsafe)
---import           Control.Monad.IO.Class (liftIO)
+import           BigE.Util      (clamp)
 import           Engine.State   (State (userInput))
 import           Graphics.GL    (GLfloat)
 import           Graphics.Types (Camera (..), UserInput (..))
 import           Linear         (M33, M44, V3 (..), V4 (..), lookAt, normalize,
-                                 zero, (!*), (*^))
+                                 zero, (!*), (!*!), (*^))
 import           Prelude        hiding (init)
 
 -- | Initialze the 'Camera'.
@@ -27,6 +27,7 @@ init =
         { viewMatrix = lookAt (V3 0 1 0) (V3 2 0 2) up
         , cameraPosition = V3 0 1 0
         , yaw = toRadians (-90)
+        , pitch = 0
         }
 
 -- | Animate the 'Camera'. Always perform all calculations, simpler code and
@@ -48,17 +49,21 @@ animate camera = do
         backwardVector = backward duration heading userInp
         cameraPosition' = cameraPosition camera + forwardVector + backwardVector
 
-    -- Calculate the spot where the camera is looking and then make the new
-    -- camera view matrix.
-    let viewSpot = cameraPosition' + heading
+    -- Calculate the pitch, thespot where the camera is looking and then
+    -- make the new camera view matrix.
+    let pitch' = normalizePitch $ pitch camera +
+                                  upPitch duration userInp +
+                                  downPitch duration userInp
+        pitchMatrix = mkRotate33 (V3 1 0 0) pitch'
+        pitchVector = (yawMatrix !*! pitchMatrix) !* ahead
+        viewSpot = cameraPosition' + pitchVector
         viewMatrix' = lookAt cameraPosition' viewSpot up
-
-    --liftIO $ print viewSpot
 
     -- Give back the new camera.
     return camera { viewMatrix = viewMatrix'
                   , cameraPosition = cameraPosition'
                   , yaw = yaw'
+                  , pitch = pitch'
                   }
 
 -- | Make a left rotation angle proportional to the rotation speed.
@@ -89,6 +94,18 @@ backward duration heading' userInp
         (-(duration * movingSpeed)) *^ heading'
     | otherwise = zero
 
+-- | Make a pitch up angle proportional to the frame duration and pitch speed.
+upPitch :: GLfloat -> UserInput -> GLfloat
+upPitch duration userInp
+    | lookUp userInp = duration * pitchSpeed
+    | otherwise = 0
+
+-- | Make a pitch down angle proportional to the frame duration and pitch speed.
+downPitch :: GLfloat -> UserInput -> GLfloat
+downPitch duration userInp
+    | lookDown userInp = -(duration * pitchSpeed)
+    | otherwise = 0
+
 -- | The unit vector pointing in the positive y-direction, i.e. up.
 up :: V3 GLfloat
 up = V3 0 1 0
@@ -97,9 +114,16 @@ up = V3 0 1 0
 ahead :: V3 GLfloat
 ahead = V3 0 0 (-1)
 
--- | Radians to yaw/rotate per second.
+-- | Radians to yaw per second.
 yawSpeed :: GLfloat
-yawSpeed = pi
+yawSpeed = toRadians 180
+
+-- | Radians to pitch per second.
+pitchSpeed :: GLfloat
+pitchSpeed = toRadians 45
+
+normalizePitch :: GLfloat -> GLfloat
+normalizePitch = clamp (toRadians (-45)) (toRadians 45)
 
 -- Model space units to move per second.
 movingSpeed :: GLfloat
