@@ -10,15 +10,16 @@ module Graphics.Camera
     , animate
     ) where
 
-import           BigE.Math      (mkRotate, toRadians)
-import           BigE.Runtime   (Render, frameDuration, getAppStateUnsafe)
-import           BigE.Util      (clamp)
-import           Engine.State   (State (userInput))
-import           Graphics.GL    (GLfloat)
-import           Graphics.Types (Camera (..), UserInput (..))
-import           Linear         (M33, M44, V3 (..), V4 (..), lookAt, normalize,
-                                 zero, (!*), (!*!), (*^))
-import           Prelude        hiding (init)
+import           BigE.Math        (mkRotate, toRadians)
+import           BigE.Runtime     (Render, frameDuration, getAppStateUnsafe)
+import           BigE.Util        (clamp)
+import           Engine.State     (State (terrain, userInput))
+import           Graphics.GL      (GLfloat)
+import qualified Graphics.Terrain as Terrain
+import           Graphics.Types   (Camera (..), Terrain, UserInput (..))
+import           Linear           (M33, M44, V3 (..), V4 (..), lookAt,
+                                   normalize, zero, (!*), (!*!), (*^))
+import           Prelude          hiding (init)
 
 -- | Initialze the 'Camera'.
 init :: Camera
@@ -35,7 +36,10 @@ init =
 animate :: Camera -> Render State Camera
 animate camera = do
     -- Get some useful stuff from the runtime.
-    userInp <- userInput <$> getAppStateUnsafe
+    state <- getAppStateUnsafe
+    let userInp = userInput state
+        terrain' = terrain state
+
     duration <- realToFrac <$> frameDuration
 
     -- Calculate the camera yaw (y-axis rotation) and the unit vector telling
@@ -49,6 +53,9 @@ animate camera = do
         backwardVector = backward duration heading userInp
         cameraPosition' = cameraPosition camera + forwardVector + backwardVector
 
+    let cameraPositionWithHeight = cameraHeight duration cameraPosition'
+                                                terrain' userInp
+
     -- Calculate the pitch, thespot where the camera is looking and then
     -- make the new camera view matrix.
     let pitch' = normalizePitch $ pitch camera +
@@ -56,12 +63,12 @@ animate camera = do
                                   downPitch duration userInp
         pitchMatrix = mkRotate33 (V3 1 0 0) pitch'
         pitchVector = (yawMatrix !*! pitchMatrix) !* ahead
-        viewSpot = cameraPosition' + pitchVector
-        viewMatrix' = lookAt cameraPosition' viewSpot up
+        viewSpot = cameraPositionWithHeight + pitchVector
+        viewMatrix' = lookAt cameraPositionWithHeight viewSpot up
 
     -- Give back the new camera.
     return camera { viewMatrix = viewMatrix'
-                  , cameraPosition = cameraPosition'
+                  , cameraPosition = cameraPositionWithHeight
                   , yaw = yaw'
                   , pitch = pitch'
                   }
@@ -106,6 +113,16 @@ downPitch duration userInp
     | lookDown userInp = -(duration * pitchSpeed)
     | otherwise = 0
 
+flyUp :: GLfloat -> UserInput -> GLfloat
+flyUp duration userInp
+    | flyMode userInp && goUp userInp = duration * movingSpeed
+    | otherwise = 0
+
+flyDown :: GLfloat -> UserInput -> GLfloat
+flyDown duration userInp
+    | flyMode userInp && goDown userInp = -(duration * movingSpeed)
+    | otherwise = 0
+
 -- | The unit vector pointing in the positive y-direction, i.e. up.
 up :: V3 GLfloat
 up = V3 0 1 0
@@ -124,6 +141,21 @@ pitchSpeed = toRadians 45
 
 normalizePitch :: GLfloat -> GLfloat
 normalizePitch = clamp (toRadians (-45)) (toRadians 45)
+
+cameraHeight :: GLfloat -> V3 GLfloat -> Terrain -> UserInput -> V3 GLfloat
+cameraHeight duration (V3 x y z) terrain' userInp =
+    let terrainHeight = Terrain.terrainHeight (x, z) terrain'
+        rawHeight = y + flyUp duration userInp + flyDown duration userInp
+        height = adjustHeight rawHeight terrainHeight
+    in V3 x height z
+    where
+        adjustHeight :: GLfloat -> GLfloat -> GLfloat
+        adjustHeight rawHeight terrainHeight
+            | flyMode userInp && terrainCollision userInp =
+                max rawHeight (terrainHeight + 0.5)
+            | not (flyMode userInp) && terrainCollision userInp =
+                terrainHeight + 2
+            | otherwise = rawHeight
 
 -- Model space units to move per second.
 movingSpeed :: GLfloat
