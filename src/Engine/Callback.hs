@@ -107,6 +107,14 @@ keyPressedCallback Key'PageUp _modifierKeys =
 keyPressedCallback Key'PageDown _modifierKeys =
     modifyUserInput $ \userInp -> userInp { lookDown = True }
 
+-- Handle w, activate go up.
+keyPressedCallback Key'W _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { goUp = True }
+
+-- Handle s, activate go down.
+keyPressedCallback Key'S _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { goDown = True }
+
 -- Handle home, force camera pitch to zero.
 keyPressedCallback Key'Home _modifierKeys =
     modifyAppState $ \state ->
@@ -141,6 +149,14 @@ keyReleasedCallback Key'PageUp _modifierKeys =
 -- Handle pgdn, deactivate look down.
 keyReleasedCallback Key'PageDown _modifierKeys =
     modifyUserInput $ \userInp -> userInp { lookDown = False }
+
+-- Handle w, deactivate go up.
+keyReleasedCallback Key'W _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { goUp = False }
+
+-- Handle s, deactivate go down.
+keyReleasedCallback Key'S _modifierKeys =
+    modifyUserInput $ \userInp -> userInp { goDown = False }
 
 -- Default - no - action.
 keyReleasedCallback _key _modifierKeys  = return ()
