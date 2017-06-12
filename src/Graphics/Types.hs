@@ -32,8 +32,8 @@ data Camera = Camera
       -- ^ The camera's current position in model space. Calculated during
       -- init/animate.
 
-    , heading        :: !(V3 GLfloat)
-      -- ^ Unit vector telling the direction in which the camera is heading.
+    , yaw            :: !GLfloat
+      -- ^ The yaw angle (the camera's rotation on the y-axis).
     } deriving Show
 
 -- | Terrain record.

@@ -10,23 +10,23 @@ module Graphics.Camera
     , animate
     ) where
 
-import           BigE.Math      (mkRotate)
+import           BigE.Math      (mkRotate, toRadians)
 import           BigE.Runtime   (Render, frameDuration, getAppStateUnsafe)
 --import           Control.Monad.IO.Class (liftIO)
 import           Engine.State   (State (userInput))
 import           Graphics.GL    (GLfloat)
 import           Graphics.Types (Camera (..), UserInput (..))
-import           Linear         (M33, M44, V3 (..), V4 (..), identity, lookAt,
-                                 normalize, zero, (!*), (!*!), (*^))
+import           Linear         (M33, M44, V3 (..), V4 (..), lookAt, normalize,
+                                 zero, (!*), (*^))
 import           Prelude        hiding (init)
 
 -- | Initialze the 'Camera'.
 init :: Camera
 init =
     Camera
-        { viewMatrix = lookAt (V3 0 1 0) (V3 2 0 2) yAxis
+        { viewMatrix = lookAt (V3 0 1 0) (V3 2 0 2) up
         , cameraPosition = V3 0 1 0
-        , heading = normalize $ V3 1 0 1
+        , yaw = toRadians (-90)
         }
 
 -- | Animate the 'Camera'. Always perform all calculations, simpler code and
@@ -37,47 +37,41 @@ animate camera = do
     userInp <- userInput <$> getAppStateUnsafe
     duration <- realToFrac <$> frameDuration
 
-    -- Calculate the new camera heading direction. Heading always shall have
-    -- an y value of zero. TODO: check if it must be forced.
-    let leftMatrix = leftRotation duration userInp
-        rightMatrix = rightRotation duration userInp
-        heading' = normalize $ (leftMatrix !*! rightMatrix) !* heading camera
+    -- Calculate the camera yaw (y-axis rotation) and the unit vector telling
+    -- the direction in which the camera is heading.
+    let yaw' = yaw camera + leftYaw duration userInp + rightYaw duration userInp
+        yawMatrix = mkRotate33 up yaw'
+        heading = normalize $ yawMatrix !* ahead
 
     -- From the heading calculate a new camera position.
-    let forwardVector = forward duration heading' userInp
-        backwardVector = backward duration heading' userInp
+    let forwardVector = forward duration heading userInp
+        backwardVector = backward duration heading userInp
         cameraPosition' = cameraPosition camera + forwardVector + backwardVector
 
     -- Calculate the spot where the camera is looking and then make the new
     -- camera view matrix.
-    let viewSpot = cameraPosition' + heading'
-        viewMatrix' = lookAt cameraPosition' viewSpot yAxis
+    let viewSpot = cameraPosition' + heading
+        viewMatrix' = lookAt cameraPosition' viewSpot up
 
     --liftIO $ print viewSpot
 
     -- Give back the new camera.
     return camera { viewMatrix = viewMatrix'
                   , cameraPosition = cameraPosition'
-                  , heading = heading'
+                  , yaw = yaw'
                   }
 
--- | Make a left camera rotation matrix proportional to the frame duration
--- and rotation speed.
-leftRotation :: GLfloat -> UserInput -> M33 GLfloat
-leftRotation duration userInp
-    | turnLeft userInp =
-        let radians = duration * rotationSpeed
-        in mkRotate33 yAxis radians
-    | otherwise = identity
+-- | Make a left rotation angle proportional to the rotation speed.
+leftYaw :: GLfloat -> UserInput -> GLfloat
+leftYaw duration userInp
+    | turnLeft userInp = duration * yawSpeed
+    | otherwise = 0
 
--- | Make a right camera rotation matrix proportional to the frame duration
--- and rotation speed.
-rightRotation :: GLfloat -> UserInput -> M33 GLfloat
-rightRotation duration userInp
-    | turnRight userInp =
-        let radians = duration * rotationSpeed
-        in mkRotate33 yAxis (-radians)
-    | otherwise = identity
+-- | Make a right rotation angle proportional to the rotation speed.
+rightYaw :: GLfloat -> UserInput -> GLfloat
+rightYaw duration userInp
+    | turnRight userInp = -(duration * yawSpeed)
+    | otherwise = 0
 
 -- | Calculate a forward motion vector from the heading, proportional to
 -- frame duration and moving speed.
@@ -96,12 +90,16 @@ backward duration heading' userInp
     | otherwise = zero
 
 -- | The unit vector pointing in the positive y-direction, i.e. up.
-yAxis :: V3 GLfloat
-yAxis = V3 0 1 0
+up :: V3 GLfloat
+up = V3 0 1 0
 
--- | Radians to rotate per second.
-rotationSpeed :: GLfloat
-rotationSpeed = pi
+-- | The unit vector pointing in the negative z-direction, i.e. ahead.
+ahead :: V3 GLfloat
+ahead = V3 0 0 (-1)
+
+-- | Radians to yaw/rotate per second.
+yawSpeed :: GLfloat
+yawSpeed = pi
 
 -- Model space units to move per second.
 movingSpeed :: GLfloat
