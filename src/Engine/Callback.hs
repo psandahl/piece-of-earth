@@ -16,7 +16,7 @@ import           BigE.Runtime   (Key (..), ModifierKeys, Render,
                                  setWindowSizeCallback)
 import           Engine.State   (State (..))
 import           Graphics.GUI   (requestCenterFlash)
-import           Graphics.Types (UserInput (..))
+import           Graphics.Types (Camera (pitch), UserInput (..))
 
 -- | Install callbacks.
 install :: Render State ()
@@ -79,9 +79,14 @@ keyPressedCallback Key'Down _modifierKeys =
 keyPressedCallback Key'PageUp _modifierKeys =
     modifyUserInput $ \userInp -> userInp { lookUp = True }
 
--- | Handle pgdn, activate look down.
+--  Handle pgdn, activate look down.
 keyPressedCallback Key'PageDown _modifierKeys =
     modifyUserInput $ \userInp -> userInp { lookDown = True }
+
+-- Handle home, force camera pitch to zero.
+keyPressedCallback Key'Home _modifierKeys =
+    modifyAppState $ \state ->
+        state { camera = (camera state) { pitch = 0 } }
 
 -- Default - no - action.
 keyPressedCallback _key _modifierKeys  = return ()
