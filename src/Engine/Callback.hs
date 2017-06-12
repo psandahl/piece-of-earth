@@ -59,6 +59,30 @@ keyPressedCallback Key'F2 _modifierKeys = do
         do putAppState $ state { userInput = userInp { renderStatusBar = True }}
            requestCenterFlash "[+status bar]"
 
+-- Handle F3, terrain collision toggle.
+keyPressedCallback Key'F3 _modifierKeys = do
+    state <- getAppStateUnsafe
+    let userInp = userInput state
+
+    if terrainCollision userInp then
+        do putAppState $ state { userInput = userInp { terrainCollision = False }}
+           requestCenterFlash "[-terrain collision]"
+    else
+        do putAppState $ state { userInput = userInp { terrainCollision = True }}
+           requestCenterFlash "[+terrain collision]"
+
+-- Handle F4, fly mode toggle.
+keyPressedCallback Key'F4 _modifierKeys = do
+   state <- getAppStateUnsafe
+   let userInp = userInput state
+
+   if flyMode userInp then
+       do putAppState $ state { userInput = userInp { flyMode = False }}
+          requestCenterFlash "[-fly mode]"
+   else
+       do putAppState $ state { userInput = userInp { flyMode = True }}
+          requestCenterFlash "[+fly mode. w=up, s=down]"
+
 -- Handle left arrow, activate turning left.
 keyPressedCallback Key'Left _modifierKeys =
     modifyUserInput $ \userInp -> userInp { turnLeft = True }

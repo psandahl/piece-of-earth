@@ -80,34 +80,40 @@ data TextEntity = TextEntity
 
 -- | Values set by user input. Used in animate or render callbacks.
 data UserInput = UserInput
-    { renderWireframe :: !Bool
+    { renderWireframe  :: !Bool
       -- ^ Render the main models as wireframes.
 
-    , renderStatusBar :: !Bool
+    , renderStatusBar  :: !Bool
       -- ^ Render a status bar at top of screen.
 
-    , turnLeft        :: !Bool
+    , terrainCollision :: !Bool
+      -- ^ Camera is using terrain collision.
+
+    , flyMode          :: !Bool
+      -- ^ Camera is able to fly.
+
+    , turnLeft         :: !Bool
       -- ^ Turn (rotate) the camera left.
 
-    , turnRight       :: !Bool
+    , turnRight        :: !Bool
       -- ^ Turn (rotate) the camera right.
 
-    , goForward       :: !Bool
+    , goForward        :: !Bool
       -- ^ Move the camera forward.
 
-    , goBackward      :: !Bool
+    , goBackward       :: !Bool
       -- ^ Move the camera backward.
 
-    , lookUp          :: !Bool
+    , lookUp           :: !Bool
       -- ^ Make the camera look up.
 
-    , lookDown        :: !Bool
+    , lookDown         :: !Bool
       -- ^ Make the camera look down.
 
-    , goUp            :: !Bool
+    , goUp             :: !Bool
       -- ^ Increase the height of the camera.
 
-    , goDown          :: !Bool
+    , goDown           :: !Bool
       -- ^ Decrease the height of the camera.
     } deriving Show
 
@@ -117,6 +123,8 @@ defaultUserInput =
     UserInput
         { renderWireframe = False
         , renderStatusBar = False
+        , terrainCollision = False
+        , flyMode = False
         , turnLeft = False
         , turnRight = False
         , goForward = False
