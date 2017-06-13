@@ -81,14 +81,16 @@ loadProgram resourceDir = do
 
 dummyMesh :: MonadIO m => m (TerrainGrid, Mesh)
 dummyMesh = do
-    let Right imageMap = ImageMap.fromVector (5, 5) $
-            fromList [ 0, 0, 0, 0, 0
-                     , 0, 0, 0, 0, 0
-                     , 0, 0, 0, 0, 0
-                     , 0, 0, 0, 0, 0
-                     , 0, 0, 0, 0, 0
+    let Right imageMap = ImageMap.fromVector (7, 7) $
+            fromList [ 0, 0, 0, 0, 0, 0, 0
+                     , 0, 0, 0, 1, 0, 0, 0
+                     , 0, 0, 0, 2, 0, 0, 0
+                     , 0, 1, 2, 3, 2, 1, 0
+                     , 0, 0, 0, 2, 0, 0, 0
+                     , 0, 0, 0, 1, 0, 0, 0
+                     , 0, 0, 0, 0, 0, 0, 0
                      ]
-        Right terrainGrid' = TerrainGrid.fromImageMap 1 imageMap
+        Right terrainGrid' = TerrainGrid.fromImageMap 3 imageMap
         (verts, indices) = TerrainGrid.asVertP terrainGrid'
     mesh' <- Mesh.fromVector StaticDraw verts indices
     return (terrainGrid', mesh')
