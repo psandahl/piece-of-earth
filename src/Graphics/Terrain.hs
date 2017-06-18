@@ -15,6 +15,7 @@ module Graphics.Terrain
     , terrainHeight
     ) where
 
+import           BigE.ImageMap          (VectorSpec (..))
 import qualified BigE.ImageMap          as ImageMap
 import           BigE.Mesh              (Mesh)
 import qualified BigE.Mesh              as Mesh
@@ -81,7 +82,7 @@ loadProgram resourceDir = do
 
 dummyMesh :: MonadIO m => m (TerrainGrid, Mesh)
 dummyMesh = do
-    let Right imageMap = ImageMap.fromVector (7, 7) $
+    let Right imageMap = ImageMap.fromVector (Raw16Vector (7, 7) $
             fromList [ 0, 0, 0, 0, 0, 0, 0
                      , 0, 0, 0, 1, 0, 0, 0
                      , 0, 0, 0, 2, 0, 0, 0
@@ -89,7 +90,7 @@ dummyMesh = do
                      , 0, 0, 0, 2, 0, 0, 0
                      , 0, 0, 0, 1, 0, 0, 0
                      , 0, 0, 0, 0, 0, 0, 0
-                     ]
+                     ])
         Right terrainGrid' = TerrainGrid.fromImageMap 3 imageMap
         (verts, indices) = TerrainGrid.asVertP terrainGrid'
     mesh' <- Mesh.fromVector StaticDraw verts indices
