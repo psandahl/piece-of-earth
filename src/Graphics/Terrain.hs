@@ -15,7 +15,8 @@ module Graphics.Terrain
     , terrainHeight
     ) where
 
-import           BigE.ImageMap          (VectorSpec (..))
+import           BigE.ImageMap          (ImageMap, PixelRGB8 (..),
+                                         VectorSpec (..))
 import qualified BigE.ImageMap          as ImageMap
 import           BigE.Mesh              (Mesh)
 import qualified BigE.Mesh              as Mesh
@@ -80,9 +81,17 @@ loadProgram resourceDir = do
                      , (FragmentShader, fragmentShader)
                      ]
 
+-- | Everything below is just dummy. No fault handling etc.
 dummyMesh :: MonadIO m => m (TerrainGrid, Mesh)
 dummyMesh = do
-    let Right imageMap = ImageMap.fromVector (Raw16Vector (7, 7) $
+    let Right terrainGrid' = TerrainGrid.fromImageMap 3 dummyHeightMap
+        Right (verts, indices) = TerrainGrid.asVertPNTxC dummyColorMap terrainGrid'
+    mesh' <- Mesh.fromVector StaticDraw verts indices
+    return (terrainGrid', mesh')
+
+dummyHeightMap :: ImageMap
+dummyHeightMap =
+    let Right heightMap = ImageMap.fromVector (Raw16Vector (7, 7) $
             fromList [ 0, 0, 0, 0, 0, 0, 0
                      , 0, 0, 0, 1, 0, 0, 0
                      , 0, 0, 0, 2, 0, 0, 0
@@ -91,7 +100,30 @@ dummyMesh = do
                      , 0, 0, 0, 1, 0, 0, 0
                      , 0, 0, 0, 0, 0, 0, 0
                      ])
-        Right terrainGrid' = TerrainGrid.fromImageMap 3 imageMap
-        (verts, indices) = TerrainGrid.asVertP terrainGrid'
-    mesh' <- Mesh.fromVector StaticDraw verts indices
-    return (terrainGrid', mesh')
+    in heightMap
+
+dummyColorMap :: ImageMap
+dummyColorMap =
+    let Right colorMap = ImageMap.fromVector (RGBVector (7, 7) $
+            fromList
+                [ red, red, red, red, red, red, red
+                , red, red, red, green, red, red, red
+                , red, red, red, blue, red, red, red
+                , red, green, blue, white, blue, green, red
+                , red, red, red, blue, red, red, red
+                , red, red, red, green, red, red, red
+                , red, red, red, red, red, red, red
+                ])
+    in colorMap
+
+red :: PixelRGB8
+red = PixelRGB8 255 0 0
+
+green :: PixelRGB8
+green = PixelRGB8 0 255 0
+
+blue :: PixelRGB8
+blue = PixelRGB8 0 0 255
+
+white :: PixelRGB8
+white = PixelRGB8 255 255 255
