@@ -19,7 +19,7 @@ import           BigE.TerrainGrid       (TerrainGrid)
 import           BigE.TextRenderer      (RenderParams, TextRenderer)
 import           BigE.TextRenderer.Font (Font)
 import           BigE.TextRenderer.Text (Text)
-import           BigE.Types             (Location, Program)
+import           BigE.Types             (Location, Program, Texture)
 import           Graphics.GL            (GLfloat)
 import           Linear                 (M44, V3 (..))
 
@@ -41,16 +41,22 @@ data Camera = Camera
 
 -- | Terrain record.
 data Terrain = Terrain
-    { program     :: !Program
+    { program          :: !Program
      -- ^ The shader program for rendering of terrains.
 
-    , mvpLoc      :: !Location
+    , mvpLoc           :: !Location
       -- ^ MVP matrix program location.
 
-    , terrainGrid :: !TerrainGrid
+    , groundTextureLoc :: !Location
+      -- ^ Location for the ground texture.
+
+    , terrainGrid      :: !TerrainGrid
       -- ^ The terrain's grid.
 
-    , mesh        :: !Mesh
+    , groundTexture    :: !Texture
+      -- ^ The ground texture.
+
+    , mesh             :: !Mesh
       -- ^ The mesh.
     } deriving Show
 

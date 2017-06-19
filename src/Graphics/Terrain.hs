@@ -24,12 +24,15 @@ import qualified BigE.Program           as Program
 import           BigE.Runtime           (Render)
 import           BigE.TerrainGrid       (TerrainGrid)
 import qualified BigE.TerrainGrid       as TerrainGrid
+import qualified BigE.Texture           as Texture
 import           BigE.Types             (BufferUsage (..), Primitive (..),
-                                         Program, ShaderType (..), setUniform)
+                                         Program, ShaderType (..), Texture,
+                                         setUniform)
+import           BigE.Util              (eitherTwo)
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Vector            (fromList)
 import           Engine.State           (State)
-import           Graphics.GL            (GLfloat)
+import           Graphics.GL            (GLfloat, GLint)
 import           Graphics.Types         (Terrain (..))
 import           Linear                 (M44)
 import           Prelude                hiding (init)
@@ -39,33 +42,41 @@ import           System.FilePath        ((</>))
 init :: MonadIO m => FilePath -> m (Either String Terrain)
 init resourceDir = do
     eProgram <- loadProgram resourceDir
+    eGroundTexture <- loadGroundTexture resourceDir
 
-    case eProgram of
-        Right program' -> do
+    case eitherTwo (eProgram, eGroundTexture) of
+        Right (program', groundTexture') -> do
             mvpLoc' <- Program.getUniformLocation program' "mvp"
+            groundTextureLoc' <- Program.getUniformLocation program' "groundTexture"
             (terrainGrid', mesh') <- dummyMesh
 
             return $
                 Right Terrain { program = program'
                               , mvpLoc = mvpLoc'
+                              , groundTextureLoc = groundTextureLoc'
                               , terrainGrid = terrainGrid'
+                              , groundTexture = groundTexture'
                               , mesh = mesh'
                               }
         Left err -> return $ Left err
 
 -- | Delete the terrain's resources.
 delete :: Terrain -> Render State ()
-delete terrain =
+delete terrain = do
     Program.delete $ program terrain
+    Texture.delete $ groundTexture terrain
 
 -- | Render all terrain given the perspective/view matrix.
 render :: M44 GLfloat -> Terrain -> Render State ()
 render vp terrain = do
     Program.enable $ program terrain
+    Texture.enable2D 0 $ groundTexture terrain
     setUniform (mvpLoc terrain) vp
+    setUniform (groundTextureLoc terrain) (0 :: GLint)
     Mesh.enable $ mesh terrain
     Mesh.render Triangles $ mesh terrain
     Mesh.disable
+    Texture.disable2D 0
     Program.disable
 
 -- | Get the terrain height for the given x z spot in model space.
@@ -80,6 +91,12 @@ loadProgram resourceDir = do
     Program.fromFile [ (VertexShader, vertexShader)
                      , (FragmentShader, fragmentShader)
                      ]
+
+-- | Load the texture used for ground structure.
+loadGroundTexture :: MonadIO m => FilePath -> m (Either String Texture)
+loadGroundTexture resourceDir = do
+    let file = resourceDir </> "textures" </> "unwrap_helper.jpg"
+    Texture.fromFile2D file Texture.defaultParams2D
 
 -- | Everything below is just dummy. No fault handling etc.
 dummyMesh :: MonadIO m => m (TerrainGrid, Mesh)
