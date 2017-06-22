@@ -6,7 +6,7 @@
 -- Stability: experimental
 -- Portability: portable
 
--- Module that implements
+-- Module that implements rendering of GUI text entities.
 module Graphics.GUI
     ( init
     , delete

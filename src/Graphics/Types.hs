@@ -1,10 +1,13 @@
 -- |
--- Module: Graphics.Terrain
+-- Module: Graphics.Types
 -- Copyright: (c) 2017 Patrik Sandahl
 -- Licence: MIT
 -- Maintainer: Patrik Sandahl <patrik.sandahl@gmail.com>
 -- Stability: experimental
 -- Portability: portable
+
+-- General types, and types for modules using the state module. Such types
+-- must be here otherwise cycles occur.
 module Graphics.Types
     ( Camera (..)
     , Terrain (..)

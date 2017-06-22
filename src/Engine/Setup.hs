@@ -9,17 +9,18 @@ module Engine.Setup
     ( setup
     ) where
 
-import           BigE.Math        (mkPerspective)
-import           BigE.Runtime     (Render, displayDimensions)
-import           BigE.Util        (eitherTwo)
-import           Engine.Callback  (install)
-import           Engine.Options   (Options)
-import qualified Engine.Options   as Options
-import           Engine.State     (State (..))
-import qualified Graphics.Camera  as Camera
-import qualified Graphics.GUI     as GUI
-import qualified Graphics.Terrain as Terrain
-import           Graphics.Types   (defaultUserInput)
+import           BigE.Math                    (mkPerspective)
+import           BigE.Runtime                 (Render, displayDimensions)
+import           BigE.Util                    (eitherTwo)
+import           Engine.Callback              (install)
+import           Engine.Options               (Options)
+import qualified Engine.Options               as Options
+import           Engine.State                 (State (..))
+import qualified Graphics.Camera              as Camera
+import qualified Graphics.GUI                 as GUI
+import qualified Graphics.Lights.AmbientLight as AmbientLight
+import qualified Graphics.Terrain             as Terrain
+import           Graphics.Types               (defaultUserInput)
 
 -- | Setup the state for the application.
 setup :: Options -> Render State (Either String State)
@@ -41,6 +42,7 @@ setup options = do
             -- Create the 'State' record.
             let state = State { resourceDir = resourceDir'
                               , perspective = mkPerspective dimensions
+                              , ambientLight = AmbientLight.defaultAmbientLight
                               , camera = Camera.init
                               , terrain = terrain'
                               , gui = gui'
