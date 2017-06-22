@@ -1,11 +1,26 @@
 // Fragment shader for terrain.
 #version 330 core
 
+// Ambient light for the terrain.
+struct AmbientLight
+{
+  vec3 color;
+  float strength;
+};
+
+// Interpolated texture coordinates.
 in vec2 vTexCoord;
+
+// Interpolated vertex color.
 in vec4 vColor;
 
+// The ground texture for all terrain.
 uniform sampler2D groundTexture;
 
+// The ambient light.
+uniform AmbientLight ambientLight;
+
+// Mandatory; the color for the fragment.
 out vec4 color;
 
 vec2 flipTexCoord(vec2 texCoord);
