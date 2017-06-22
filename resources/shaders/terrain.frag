@@ -23,21 +23,27 @@ uniform AmbientLight ambientLight;
 // Mandatory; the color for the fragment.
 out vec4 color;
 
-vec2 flipTexCoord(vec2 texCoord);
+vec2 flipTexCoord();
+vec3 baseColor();
 
 void main()
 {
-  vec2 texCoord = flipTexCoord(vTexCoord);
-  vec3 textureColor = texture2D(groundTexture, texCoord).rgb;
-  color = vec4(mix(textureColor, vColor.rgb, 0.8), 1);
+  color = vec4(baseColor(), 1);
 }
 
 // The texture is loaded up-side-down. The t componend must be flipped.
-vec2 flipTexCoord(vec2 texCoord)
+vec2 flipTexCoord()
 {
-  float upper = ceil(texCoord.t);
-  float lower = floor(texCoord.t);
-  float diff = upper - texCoord.t;
+  float upper = ceil(vTexCoord.t);
+  float lower = floor(vTexCoord.t);
+  float diff = upper - vTexCoord.t;
 
-  return vec2(texCoord.s, lower + diff);
+  return vec2(vTexCoord.s, lower + diff);
+}
+
+// Calculate the base color from the color map and the vertex' color.
+vec3 baseColor()
+{
+  vec3 textureColor = texture2D(groundTexture, flipTexCoord()).rgb;
+  return mix(textureColor, vColor.rgb, 0.8);
 }
