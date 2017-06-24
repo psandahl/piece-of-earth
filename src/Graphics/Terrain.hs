@@ -15,28 +15,30 @@ module Graphics.Terrain
     , terrainHeight
     ) where
 
-import           BigE.ImageMap          (ImageMap, PixelRGB8 (..),
-                                         VectorSpec (..))
-import qualified BigE.ImageMap          as ImageMap
-import           BigE.Mesh              (Mesh)
-import qualified BigE.Mesh              as Mesh
-import qualified BigE.Program           as Program
-import           BigE.Runtime           (Render)
-import           BigE.TerrainGrid       (TerrainGrid)
-import qualified BigE.TerrainGrid       as TerrainGrid
-import qualified BigE.Texture           as Texture
-import           BigE.Types             (BufferUsage (..), Primitive (..),
-                                         Program, ShaderType (..), Texture,
-                                         setUniform)
-import           BigE.Util              (eitherTwo)
-import           Control.Monad.IO.Class (MonadIO)
-import           Data.Vector            (fromList)
-import           Engine.State           (State)
-import           Graphics.GL            (GLfloat, GLint)
-import           Graphics.Types         (Terrain (..))
-import           Linear                 (M44)
-import           Prelude                hiding (init)
-import           System.FilePath        ((</>))
+import           BigE.ImageMap                (ImageMap, PixelRGB8 (..),
+                                               VectorSpec (..))
+import qualified BigE.ImageMap                as ImageMap
+import           BigE.Mesh                    (Mesh)
+import qualified BigE.Mesh                    as Mesh
+import qualified BigE.Program                 as Program
+import           BigE.Runtime                 (Render, getAppStateUnsafe)
+import           BigE.TerrainGrid             (TerrainGrid)
+import qualified BigE.TerrainGrid             as TerrainGrid
+import qualified BigE.Texture                 as Texture
+import           BigE.Types                   (BufferUsage (..), Primitive (..),
+                                               Program, ShaderType (..),
+                                               Texture, setUniform)
+import           BigE.Util                    (eitherTwo)
+import           Control.Monad.IO.Class       (MonadIO)
+import           Data.Vector                  (fromList)
+import           Engine.State                 (State (ambientLight))
+import           Graphics.GL                  (GLfloat, GLint)
+import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
+                                               setAmbientLight)
+import           Graphics.Types               (Terrain (..))
+import           Linear                       (M44)
+import           Prelude                      hiding (init)
+import           System.FilePath              ((</>))
 
 -- | Initialize the terrain given the path to the resource base directory.
 init :: MonadIO m => FilePath -> m (Either String Terrain)
@@ -48,12 +50,14 @@ init resourceDir = do
         Right (program', groundTexture') -> do
             mvpLoc' <- Program.getUniformLocation program' "mvp"
             groundTextureLoc' <- Program.getUniformLocation program' "groundTexture"
+            ambientLightLoc' <- getAmbientLightLoc program'
             (terrainGrid', mesh') <- dummyMesh
 
             return $
                 Right Terrain { program = program'
                               , mvpLoc = mvpLoc'
                               , groundTextureLoc = groundTextureLoc'
+                              , ambientLightLoc = ambientLightLoc'
                               , terrainGrid = terrainGrid'
                               , groundTexture = groundTexture'
                               , mesh = mesh'
@@ -71,10 +75,18 @@ render :: M44 GLfloat -> Terrain -> Render State ()
 render vp terrain = do
     Program.enable $ program terrain
     Texture.enable2D 0 $ groundTexture terrain
+
+    -- Set uniforms.
     setUniform (mvpLoc terrain) vp
     setUniform (groundTextureLoc terrain) (0 :: GLint)
+    ambientLight' <- ambientLight <$> getAppStateUnsafe
+    setAmbientLight ambientLight' $ ambientLightLoc terrain
+
+    -- Render stuff.
     Mesh.enable $ mesh terrain
     Mesh.render Triangles $ mesh terrain
+
+    -- Clean up.
     Mesh.disable
     Texture.disable2D 0
     Program.disable

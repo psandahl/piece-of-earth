@@ -17,14 +17,15 @@ module Graphics.Types
     , defaultUserInput
     ) where
 
-import           BigE.Mesh              (Mesh)
-import           BigE.TerrainGrid       (TerrainGrid)
-import           BigE.TextRenderer      (RenderParams, TextRenderer)
-import           BigE.TextRenderer.Font (Font)
-import           BigE.TextRenderer.Text (Text)
-import           BigE.Types             (Location, Program, Texture)
-import           Graphics.GL            (GLfloat)
-import           Linear                 (M44, V3 (..))
+import           BigE.Mesh                    (Mesh)
+import           BigE.TerrainGrid             (TerrainGrid)
+import           BigE.TextRenderer            (RenderParams, TextRenderer)
+import           BigE.TextRenderer.Font       (Font)
+import           BigE.TextRenderer.Text       (Text)
+import           BigE.Types                   (Location, Program, Texture)
+import           Graphics.GL                  (GLfloat)
+import           Graphics.Lights.AmbientLight (AmbientLightLoc)
+import           Linear                       (M44, V3 (..))
 
 -- | The camera record.
 data Camera = Camera
@@ -52,6 +53,9 @@ data Terrain = Terrain
 
     , groundTextureLoc :: !Location
       -- ^ Location for the ground texture.
+
+    , ambientLightLoc  :: !AmbientLightLoc
+      -- ^ Locations for the ambient light.
 
     , terrainGrid      :: !TerrainGrid
       -- ^ The terrain's grid.

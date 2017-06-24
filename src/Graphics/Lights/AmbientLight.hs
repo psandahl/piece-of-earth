@@ -42,8 +42,8 @@ data AmbientLightLoc = AmbientLightLoc
 defaultAmbientLight :: AmbientLight
 defaultAmbientLight =
     AmbientLight
-        { color = V3 1 0 0
-        , strength = 0.1
+        { color = V3 0 1 0
+        , strength = 0.5
         }
 
 -- | For the given program this function is expecting that there is a struct

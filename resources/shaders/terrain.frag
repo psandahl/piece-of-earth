@@ -28,7 +28,9 @@ vec3 baseColor();
 
 void main()
 {
-  color = vec4(baseColor(), 1);
+  vec3 ambientColor = ambientLight.color * ambientLight.strength;
+  vec3 fragmentColor = baseColor() + ambientColor;
+  color = vec4(fragmentColor, 1);
 }
 
 // The texture is loaded up-side-down. The t componend must be flipped.
@@ -41,7 +43,8 @@ vec2 flipTexCoord()
   return vec2(vTexCoord.s, lower + diff);
 }
 
-// Calculate the base color from the color map and the vertex' color.
+// Calculate the base color from the color map and the vertex' color. I.e. the
+// color before any lightning is applied.
 vec3 baseColor()
 {
   vec3 textureColor = texture2D(groundTexture, flipTexCoord()).rgb;
