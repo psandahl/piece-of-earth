@@ -142,13 +142,13 @@ dummyColorMap :: ImageMap
 dummyColorMap =
     let Right colorMap = ImageMap.fromVector (RGBVector (7, 7) $
             fromList
-                [ red, red, red, red, red, red, red
-                , red, red, red, green, red, red, red
+                [ red, blue, red, blue, red, blue, red
+                , red, red, blue, green, blue, red, red
                 , red, red, red, blue, red, red, red
                 , red, green, blue, white, blue, green, red
                 , red, red, red, blue, red, red, red
-                , red, red, red, green, red, red, red
-                , red, red, red, red, red, red, red
+                , red, red, blue, green, blue, red, red
+                , red, blue, red, blue, red, blue, red
                 ])
     in colorMap
 

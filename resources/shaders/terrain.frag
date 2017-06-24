@@ -16,10 +16,10 @@ struct LightEmitter
   float strength;
 };
 
-// Interpolated texture coordinates.
+// Interpolated vertex attributes.
+in vec3 vPosition;
+in vec3 vNormal;
 in vec2 vTexCoord;
-
-// Interpolated vertex color.
 in vec4 vColor;
 
 // The ground texture for all terrain.
@@ -31,15 +31,18 @@ uniform AmbientLight ambientLight;
 // The sun light.
 uniform LightEmitter sunLight;
 
-// Mandatory; the color for the fragment.
+// Mandatory output; the color for the fragment.
 out vec4 color;
 
 vec3 baseColor();
+vec3 calcAmbientColor();
+vec3 calcSunLight();
 
 void main()
 {
-  vec3 ambientColor = ambientLight.color * ambientLight.strength;
-  vec3 fragmentColor = baseColor() + ambientColor;
+  vec3 ambientColor = calcAmbientColor();
+  vec3 sunColor = calcSunLight();
+  vec3 fragmentColor = baseColor() + ambientColor + sunColor;
   color = vec4(fragmentColor, 1);
 }
 
@@ -49,4 +52,20 @@ vec3 baseColor()
 {
   vec3 textureColor = texture2D(groundTexture, vTexCoord).rgb;
   return mix(textureColor, vColor.rgb, 0.8);
+}
+
+// Calculate the ambient color for the fragment.
+vec3 calcAmbientColor()
+{
+  return ambientLight.color * ambientLight.strength;
+}
+
+// Calculate the sun (diffuse) light.
+vec3 calcSunLight()
+{
+  vec3 normal = normalize(vNormal);
+  vec3 direction = normalize(vPosition - sunLight.position);
+  float diffuse = dot(-direction, normal);
+
+  return vec3(0);
 }

@@ -10,15 +10,26 @@ layout (location = 3) in vec4 color;
 // MVP matrix.
 uniform mat4 mvp;
 
-// Interpolated texture coordinate.
+// Interpolated vertex attributes.
+out vec3 vPosition;
+out vec3 vNormal;
 out vec2 vTexCoord;
-
-// Interpolated vertex color.
 out vec4 vColor;
 
 void main()
 {
-  vTexCoord = vec2(texCoord.s, 1 - texCoord.t);
-  vColor = color;
+  // Transformed vertex position for the GL pipeline.
   gl_Position = mvp * vec4(position, 1);
+
+  // Transformed vertex position for fragment calculations.
+  vPosition = gl_Position.xyz;
+
+  // Transformed normal for fragment calculations.
+  vNormal = (mvp * vec4(position, 0)).xyz;
+
+  // Texture coordinates for fragment calculation. Flipped on the t dimension.
+  vTexCoord = vec2(texCoord.s, 1 - texCoord.t);
+
+  // The color. Just passed on.
+  vColor = color;
 }
