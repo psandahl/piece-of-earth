@@ -50,7 +50,7 @@ init resourceDir = do
         Right (program', groundTexture') -> do
             mvpLoc' <- Program.getUniformLocation program' "mvp"
             groundTextureLoc' <- Program.getUniformLocation program' "groundTexture"
-            ambientLightLoc' <- getAmbientLightLoc program'
+            ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
             (terrainGrid', mesh') <- dummyMesh
 
             return $

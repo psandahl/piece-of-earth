@@ -47,13 +47,13 @@ defaultAmbientLight =
         }
 
 -- | For the given program this function is expecting that there is a struct
--- type uniform named "ambientLight" with two members; color and strength.
-getAmbientLightLoc :: MonadIO m => Program -> m AmbientLightLoc
-getAmbientLightLoc program =
-    AmbientLightLoc <$> Program.getUniformLocation program "ambientLight.color"
-                    <*> Program.getUniformLocation program "ambientLight.strength"
+-- type uniform with two members; color and strength.
+getAmbientLightLoc :: MonadIO m => Program -> String -> m AmbientLightLoc
+getAmbientLightLoc program var =
+    AmbientLightLoc <$> Program.getUniformLocation program (var ++ ".color")
+                    <*> Program.getUniformLocation program (var ++ ".strength")
 
--- | Set the values of the AmbientLight record.
+-- | Set the ambient light.
 setAmbientLight :: MonadIO m => AmbientLight -> AmbientLightLoc -> m ()
 setAmbientLight ambientLight ambientLightLoc = do
     setUniform (colorLoc ambientLightLoc) (color ambientLight)
