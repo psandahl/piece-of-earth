@@ -23,11 +23,13 @@ void main()
 {
   // Transform position to view space for lightning calculations in the
   // fragment shader.
-  vPosition = (mv * vec4(position, 1)).xyz;
+  //vPosition = (mv * vec4(position, 1)).xyz;
+  vPosition = position;
 
   // Transform normal to view space for lightning calculations in the
   // fragment shader.
-  vNormal = (mv * vec4(normal, 0)).xyz;
+  //vNormal = (mv * vec4(normal, 0)).xyz;
+  vNormal = normal;
 
   // Texture coordinates for fragment calculation. Flipped on the t dimension.
   vTexCoord = vec2(texCoord.s, 1 - texCoord.t);

@@ -67,8 +67,8 @@ vec3 calcAmbientColor()
 vec3 calcSunLight()
 {
   vec3 normal = normalize(vNormal);
-  vec3 sunSpot = (viewMatrix * vec4(sunLight.position, 1)).xyz;
-  vec3 direction = normalize(vPosition - sunSpot);
+  //vec3 sunSpot = (viewMatrix * vec4(sunLight.position, 1)).xyz;
+  vec3 direction = normalize(vPosition - sunLight.position);
   float diffuse = max(dot(normal, -direction), 0);
 
   return sunLight.color * diffuse;
