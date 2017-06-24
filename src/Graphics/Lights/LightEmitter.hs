@@ -29,29 +29,23 @@ data LightEmitter = LightEmitter
 
     , color    :: !(V3 GLfloat)
       -- ^ The color of the light.
-
-    , strength :: !GLfloat
-      -- ^ The strength of the light.
     } deriving Show
 
 -- | The collection of locations for a light emitter.
 data LightEmitterLoc = LightEmitterLoc
     { positionLoc :: !Location
     , colorLoc    :: !Location
-    , strengthLoc :: !Location
     } deriving Show
 
 -- | For the given program the function is expecting there is a a struct type
--- uniform with the members; position, color and strength.
+-- uniform with the members; position and color.
 getLightEmitterLoc :: MonadIO m => Program -> String -> m LightEmitterLoc
 getLightEmitterLoc program var =
     LightEmitterLoc <$> Program.getUniformLocation program (var ++ ".position")
                     <*> Program.getUniformLocation program (var ++ ".color")
-                    <*> Program.getUniformLocation program (var ++ ".strength")
 
 -- | Set the light emitter.
 setLightEmitter :: MonadIO m => LightEmitterLoc -> LightEmitter -> m ()
 setLightEmitter lightEmitterLoc lightEmitter = do
     setUniform (positionLoc lightEmitterLoc) (position lightEmitter)
     setUniform (colorLoc lightEmitterLoc) (color lightEmitter)
-    setUniform (strengthLoc lightEmitterLoc) (strength lightEmitter)

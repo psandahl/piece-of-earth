@@ -13,7 +13,6 @@ struct LightEmitter
 {
   vec3 position;
   vec3 color;
-  float strength;
 };
 
 // Interpolated vertex attributes.

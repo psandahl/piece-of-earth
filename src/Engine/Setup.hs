@@ -66,7 +66,7 @@ initialAmbientLight :: AmbientLight
 initialAmbientLight =
     AmbientLight
         { AmbientLight.color = V3 1 1 1
-        , AmbientLight.strength = 0.0
+        , AmbientLight.strength = 0.2
         }
 
 initialSunLight :: LightEmitter
@@ -74,5 +74,4 @@ initialSunLight =
     LightEmitter
         { LightEmitter.position = V3 3 30 (-100)
         , LightEmitter.color = V3 1 1 1
-        , LightEmitter.strength = 0
         }
