@@ -9,7 +9,7 @@
 -- LightEmitter is a general source of light. The module is exporting two
 -- records, one is the light itself and the other is the record of locations
 -- tied to a program.
-module Graphics.Light.LightEmitter
+module Graphics.Lights.LightEmitter
     ( LightEmitter (..)
     , LightEmitterLoc
     , getLightEmitterLoc

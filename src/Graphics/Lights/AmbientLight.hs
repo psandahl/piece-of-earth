@@ -12,7 +12,6 @@
 module Graphics.Lights.AmbientLight
     ( AmbientLight (..)
     , AmbientLightLoc
-    , defaultAmbientLight
     , getAmbientLightLoc
     , setAmbientLight
     ) where
@@ -38,13 +37,6 @@ data AmbientLightLoc = AmbientLightLoc
     { colorLoc    :: !Location
     , strengthLoc :: !Location
     } deriving Show
-
-defaultAmbientLight :: AmbientLight
-defaultAmbientLight =
-    AmbientLight
-        { color = V3 0 1 0
-        , strength = 0.5
-        }
 
 -- | For the given program this function is expecting that there is a struct
 -- type uniform with two members; color and strength.

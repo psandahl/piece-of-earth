@@ -31,10 +31,12 @@ import           BigE.Types                   (BufferUsage (..), Primitive (..),
 import           BigE.Util                    (eitherTwo)
 import           Control.Monad.IO.Class       (MonadIO)
 import           Data.Vector                  (fromList)
-import           Engine.State                 (State (ambientLight))
+import           Engine.State                 (State (ambientLight, sunLight))
 import           Graphics.GL                  (GLfloat, GLint)
 import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
                                                setAmbientLight)
+import           Graphics.Lights.LightEmitter (getLightEmitterLoc,
+                                               setLightEmitter)
 import           Graphics.Types               (Terrain (..))
 import           Linear                       (M44)
 import           Prelude                      hiding (init)
@@ -51,6 +53,7 @@ init resourceDir = do
             mvpLoc' <- Program.getUniformLocation program' "mvp"
             groundTextureLoc' <- Program.getUniformLocation program' "groundTexture"
             ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
+            sunLightLoc' <- getLightEmitterLoc program' "sunLight"
             (terrainGrid', mesh') <- dummyMesh
 
             return $
@@ -58,6 +61,7 @@ init resourceDir = do
                               , mvpLoc = mvpLoc'
                               , groundTextureLoc = groundTextureLoc'
                               , ambientLightLoc = ambientLightLoc'
+                              , sunLightLoc = sunLightLoc'
                               , terrainGrid = terrainGrid'
                               , groundTexture = groundTexture'
                               , mesh = mesh'
@@ -79,8 +83,11 @@ render vp terrain = do
     -- Set uniforms.
     setUniform (mvpLoc terrain) vp
     setUniform (groundTextureLoc terrain) (0 :: GLint)
-    ambientLight' <- ambientLight <$> getAppStateUnsafe
-    setAmbientLight ambientLight' $ ambientLightLoc terrain
+
+    state <- getAppStateUnsafe
+
+    setAmbientLight (ambientLight state) $ ambientLightLoc terrain
+    setLightEmitter (sunLight state) $ sunLightLoc terrain
 
     -- Render stuff.
     Mesh.enable $ mesh terrain

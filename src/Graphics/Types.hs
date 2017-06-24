@@ -25,6 +25,7 @@ import           BigE.TextRenderer.Text       (Text)
 import           BigE.Types                   (Location, Program, Texture)
 import           Graphics.GL                  (GLfloat)
 import           Graphics.Lights.AmbientLight (AmbientLightLoc)
+import           Graphics.Lights.LightEmitter (LightEmitterLoc)
 import           Linear                       (M44, V3 (..))
 
 -- | The camera record.
@@ -56,6 +57,9 @@ data Terrain = Terrain
 
     , ambientLightLoc  :: !AmbientLightLoc
       -- ^ Locations for the ambient light.
+
+    , sunLightLoc      :: !LightEmitterLoc
+      -- ^ Locations for the sun light.
 
     , terrainGrid      :: !TerrainGrid
       -- ^ The terrain's grid.

@@ -11,6 +11,7 @@ module Engine.State
 
 import           Graphics.GL                  (GLfloat)
 import           Graphics.Lights.AmbientLight (AmbientLight)
+import           Graphics.Lights.LightEmitter (LightEmitter)
 import           Graphics.Types               (Camera, GUI, Terrain, UserInput)
 import           Linear                       (M44)
 
@@ -26,6 +27,9 @@ data State = State
 
     , ambientLight :: !AmbientLight
       -- ^ Ambient light used for rendering a scene.
+
+    , sunLight     :: !LightEmitter
+      -- ^ Sun light emitter used for rendering a scene.
 
     , camera       :: !Camera
       -- ^ The application's camera.
