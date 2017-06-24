@@ -49,8 +49,14 @@ data Terrain = Terrain
     { program          :: !Program
      -- ^ The shader program for rendering of terrains.
 
+    , modelMatrix      :: !(M44 GLfloat)
+      -- ^ The model matrix for the terrain tile.
+
     , mvpLoc           :: !Location
-      -- ^ MVP matrix program location.
+      -- ^ MVP matrix location.
+
+    , mvLoc            :: !Location
+      -- ^ MV matrix location.
 
     , groundTextureLoc :: !Location
       -- ^ Location for the ground texture.

@@ -50,8 +50,8 @@ getLightEmitterLoc program var =
                     <*> Program.getUniformLocation program (var ++ ".strength")
 
 -- | Set the light emitter.
-setLightEmitter :: MonadIO m => LightEmitter -> LightEmitterLoc -> m ()
-setLightEmitter lightEmitter lightEmitterLoc = do
+setLightEmitter :: MonadIO m => LightEmitterLoc -> LightEmitter -> m ()
+setLightEmitter lightEmitterLoc lightEmitter = do
     setUniform (positionLoc lightEmitterLoc) (position lightEmitter)
     setUniform (colorLoc lightEmitterLoc) (color lightEmitter)
     setUniform (strengthLoc lightEmitterLoc) (strength lightEmitter)

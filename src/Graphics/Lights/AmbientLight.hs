@@ -46,7 +46,7 @@ getAmbientLightLoc program var =
                     <*> Program.getUniformLocation program (var ++ ".strength")
 
 -- | Set the ambient light.
-setAmbientLight :: MonadIO m => AmbientLight -> AmbientLightLoc -> m ()
-setAmbientLight ambientLight ambientLightLoc = do
+setAmbientLight :: MonadIO m => AmbientLightLoc -> AmbientLight -> m ()
+setAmbientLight ambientLightLoc ambientLight = do
     setUniform (colorLoc ambientLightLoc) (color ambientLight)
     setUniform (strengthLoc ambientLightLoc) (strength ambientLight)

@@ -16,8 +16,7 @@ import           Engine.State     (State (..))
 import qualified Graphics.GL      as GL
 import qualified Graphics.GUI     as GUI
 import qualified Graphics.Terrain as Terrain
-import           Graphics.Types   (Camera (..), UserInput (..))
-import           Linear           ((!*!))
+import           Graphics.Types   (UserInput (..))
 
 -- | The master rendering callback.
 render :: Render State ()
@@ -33,16 +32,13 @@ render = do
     -- Clear the framebuffers.
     GL.glClear (GL.GL_COLOR_BUFFER_BIT .|. GL.GL_DEPTH_BUFFER_BIT)
 
-    -- Calculate the view/perspective matrix. Model matrices will be added
-    -- in local renderers.
-    let vp = perspective state !*! viewMatrix (camera state)
-        userInp = userInput state
+    let userInp = userInput state
 
     when (renderWireframe userInp) $
         GL.glPolygonMode GL.GL_FRONT_AND_BACK GL.GL_LINE
 
     -- Render the terrain.
-    Terrain.render vp $ terrain state
+    Terrain.render $ terrain state
 
     when (renderWireframe userInp) $
         GL.glPolygonMode GL.GL_FRONT_AND_BACK GL.GL_FILL

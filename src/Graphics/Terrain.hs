@@ -21,7 +21,7 @@ import qualified BigE.ImageMap                as ImageMap
 import           BigE.Mesh                    (Mesh)
 import qualified BigE.Mesh                    as Mesh
 import qualified BigE.Program                 as Program
-import           BigE.Runtime                 (Render, getAppStateUnsafe)
+import           BigE.Runtime                 (Render)
 import           BigE.TerrainGrid             (TerrainGrid)
 import qualified BigE.TerrainGrid             as TerrainGrid
 import qualified BigE.Texture                 as Texture
@@ -31,14 +31,16 @@ import           BigE.Types                   (BufferUsage (..), Primitive (..),
 import           BigE.Util                    (eitherTwo)
 import           Control.Monad.IO.Class       (MonadIO)
 import           Data.Vector                  (fromList)
-import           Engine.State                 (State (ambientLight, sunLight))
+import           Engine.State                 (State, getAmbientLight,
+                                               getPerspectiveMatrix,
+                                               getSunLight, getViewMatrix)
 import           Graphics.GL                  (GLfloat, GLint)
 import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
                                                setAmbientLight)
 import           Graphics.Lights.LightEmitter (getLightEmitterLoc,
                                                setLightEmitter)
 import           Graphics.Types               (Terrain (..))
-import           Linear                       (M44)
+import           Linear                       (identity, (!*!))
 import           Prelude                      hiding (init)
 import           System.FilePath              ((</>))
 
@@ -51,6 +53,7 @@ init resourceDir = do
     case eitherTwo (eProgram, eGroundTexture) of
         Right (program', groundTexture') -> do
             mvpLoc' <- Program.getUniformLocation program' "mvp"
+            mvLoc' <- Program.getUniformLocation program' "mv"
             groundTextureLoc' <- Program.getUniformLocation program' "groundTexture"
             ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
             sunLightLoc' <- getLightEmitterLoc program' "sunLight"
@@ -58,7 +61,9 @@ init resourceDir = do
 
             return $
                 Right Terrain { program = program'
+                              , modelMatrix = identity
                               , mvpLoc = mvpLoc'
+                              , mvLoc = mvLoc'
                               , groundTextureLoc = groundTextureLoc'
                               , ambientLightLoc = ambientLightLoc'
                               , sunLightLoc = sunLightLoc'
@@ -74,20 +79,23 @@ delete terrain = do
     Program.delete $ program terrain
     Texture.delete $ groundTexture terrain
 
--- | Render all terrain given the perspective/view matrix.
-render :: M44 GLfloat -> Terrain -> Render State ()
-render vp terrain = do
+-- | Render all terrain.
+render :: Terrain -> Render State ()
+render terrain = do
     Program.enable $ program terrain
     Texture.enable2D 0 $ groundTexture terrain
 
     -- Set uniforms.
-    setUniform (mvpLoc terrain) vp
+    perspectiveMatrix <- getPerspectiveMatrix
+    viewMatrix <- getViewMatrix
+    let mv = perspectiveMatrix !*! viewMatrix
+        mvp = mv !*! modelMatrix terrain
+
+    setUniform (mvpLoc terrain) mvp
+    setUniform (mvLoc terrain) mv
     setUniform (groundTextureLoc terrain) (0 :: GLint)
-
-    state <- getAppStateUnsafe
-
-    setAmbientLight (ambientLight state) $ ambientLightLoc terrain
-    setLightEmitter (sunLight state) $ sunLightLoc terrain
+    setAmbientLight (ambientLightLoc terrain) =<< getAmbientLight
+    setLightEmitter (sunLightLoc terrain) =<< getSunLight
 
     -- Render stuff.
     Mesh.enable $ mesh terrain
