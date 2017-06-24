@@ -52,13 +52,13 @@ data Terrain = Terrain
     , modelMatrix      :: !(M44 GLfloat)
       -- ^ The model matrix for the terrain tile.
 
-    , mvpLoc           :: !Location
+    , mvpMatrixLoc     :: !Location
       -- ^ MVP matrix location.
 
-    , mvLoc            :: !Location
+    , mvMatrixLoc      :: !Location
       -- ^ MV matrix location.
 
-    , viewMatrixLoc    :: !Location
+    , vMatrixLoc       :: !Location
       -- ^ View matrix location.
 
     , groundTextureLoc :: !Location

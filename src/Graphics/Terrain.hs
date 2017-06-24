@@ -52,10 +52,10 @@ init resourceDir = do
 
     case eitherTwo (eProgram, eGroundTexture) of
         Right (program', groundTexture') -> do
-            mvpLoc' <- Program.getUniformLocation program' "mvp"
-            mvLoc' <- Program.getUniformLocation program' "mv"
+            mvpMatrixLoc' <- Program.getUniformLocation program' "mvpMatrix"
+            mvMatrixLoc' <- Program.getUniformLocation program' "mvMatrix"
+            vMatrixLoc' <- Program.getUniformLocation program' "vMatrix"
             groundTextureLoc' <- Program.getUniformLocation program' "groundTexture"
-            viewMatrixLoc' <- Program.getUniformLocation program' "viewMatrix"
             ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
             sunLightLoc' <- getLightEmitterLoc program' "sunLight"
             (terrainGrid', mesh') <- dummyMesh
@@ -63,9 +63,9 @@ init resourceDir = do
             return $
                 Right Terrain { program = program'
                               , modelMatrix = identity
-                              , mvpLoc = mvpLoc'
-                              , mvLoc = mvLoc'
-                              , viewMatrixLoc = viewMatrixLoc'
+                              , mvpMatrixLoc = mvpMatrixLoc'
+                              , mvMatrixLoc = mvMatrixLoc'
+                              , vMatrixLoc = vMatrixLoc'
                               , groundTextureLoc = groundTextureLoc'
                               , ambientLightLoc = ambientLightLoc'
                               , sunLightLoc = sunLightLoc'
@@ -89,14 +89,14 @@ render terrain = do
 
     -- Set uniforms.
     perspectiveMatrix <- getPerspectiveMatrix
-    viewMatrix <- getViewMatrix
-    let mv = perspectiveMatrix !*! viewMatrix
-        mvp = mv !*! modelMatrix terrain
+    vMatrix <- getViewMatrix
+    let mvMatrix = vMatrix !*! modelMatrix terrain
+        mvpMatrix = perspectiveMatrix !*! vMatrix !*! modelMatrix terrain
 
-    setUniform (mvpLoc terrain) mvp
-    setUniform (mvLoc terrain) mv
+    setUniform (mvpMatrixLoc terrain) mvpMatrix
+    setUniform (mvMatrixLoc terrain) mvMatrix
     setUniform (groundTextureLoc terrain) (0 :: GLint)
-    setUniform (viewMatrixLoc terrain) viewMatrix
+    setUniform (vMatrixLoc terrain) vMatrix
     setAmbientLight (ambientLightLoc terrain) =<< getAmbientLight
     setLightEmitter (sunLightLoc terrain) =<< getSunLight
 

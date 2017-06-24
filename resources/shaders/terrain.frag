@@ -25,8 +25,8 @@ in vec4 vColor;
 // The ground texture for all terrain.
 uniform sampler2D groundTexture;
 
-// The view matrix. For transforming the sun light position to view space.
-uniform mat4 viewMatrix;
+// The V matrix. For transforming the sun light position to view space.
+uniform mat4 vMatrix;
 
 // The ambient light.
 uniform AmbientLight ambientLight;
@@ -38,14 +38,12 @@ uniform LightEmitter sunLight;
 out vec4 color;
 
 vec3 baseColor();
-vec3 calcAmbientColor();
+vec3 calcAmbientLight();
 vec3 calcSunLight();
 
 void main()
 {
-  vec3 ambientColor = calcAmbientColor();
-  vec3 sunColor = calcSunLight();
-  vec3 fragmentColor = baseColor() * (ambientColor + sunColor);
+  vec3 fragmentColor = baseColor() * (calcAmbientLight() + calcSunLight());
   color = vec4(fragmentColor, 1);
 }
 
@@ -57,8 +55,8 @@ vec3 baseColor()
   return mix(textureColor, vColor.rgb, 0.8);
 }
 
-// Calculate the ambient color for the fragment.
-vec3 calcAmbientColor()
+// Calculate the ambient light for the fragment.
+vec3 calcAmbientLight()
 {
   return ambientLight.color * ambientLight.strength;
 }
@@ -67,8 +65,11 @@ vec3 calcAmbientColor()
 vec3 calcSunLight()
 {
   vec3 normal = normalize(vNormal);
-  //vec3 sunSpot = (viewMatrix * vec4(sunLight.position, 1)).xyz;
-  vec3 direction = normalize(vPosition - sunLight.position);
+
+  // The sun light is already in the correct model coordinates. Just transform
+  // it to the view space of the terrain.
+  vec3 sunSpot = (vMatrix * vec4(sunLight.position, 1)).xyz;
+  vec3 direction = normalize(vPosition - sunSpot);
   float diffuse = max(dot(normal, -direction), 0);
 
   return sunLight.color * diffuse;

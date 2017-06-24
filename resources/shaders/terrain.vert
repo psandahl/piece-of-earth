@@ -8,10 +8,10 @@ layout (location = 2) in vec2 texCoord;
 layout (location = 3) in vec4 color;
 
 // MVP matrix; for the complete transformation of a vertex.
-uniform mat4 mvp;
+uniform mat4 mvpMatrix;
 
 // MV matrix; for the transformation of normals and positions to view space.
-uniform mat4 mv;
+uniform mat4 mvMatrix;
 
 // Interpolated vertex attributes.
 out vec3 vPosition;
@@ -23,13 +23,11 @@ void main()
 {
   // Transform position to view space for lightning calculations in the
   // fragment shader.
-  //vPosition = (mv * vec4(position, 1)).xyz;
-  vPosition = position;
+  vPosition = (mvMatrix * vec4(position, 1)).xyz;
 
   // Transform normal to view space for lightning calculations in the
   // fragment shader.
-  //vNormal = (mv * vec4(normal, 0)).xyz;
-  vNormal = normal;
+  vNormal = (mvMatrix * vec4(normal, 0)).xyz;
 
   // Texture coordinates for fragment calculation. Flipped on the t dimension.
   vTexCoord = vec2(texCoord.s, 1 - texCoord.t);
@@ -38,5 +36,5 @@ void main()
   vColor = color;
 
   // Transformed vertex position for the GL pipeline.
-  gl_Position = mvp * vec4(position, 1);
+  gl_Position = mvpMatrix * vec4(position, 1);
 }
