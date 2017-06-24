@@ -27,7 +27,7 @@ void main()
 
   // Transform normal to view space for lightning calculations in the
   // fragment shader.
-  vNormal = (mv * vec4(position, 0)).xyz;
+  vNormal = (mv * vec4(normal, 0)).xyz;
 
   // Texture coordinates for fragment calculation. Flipped on the t dimension.
   vTexCoord = vec2(texCoord.s, 1 - texCoord.t);

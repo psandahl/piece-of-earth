@@ -55,6 +55,7 @@ init resourceDir = do
             mvpLoc' <- Program.getUniformLocation program' "mvp"
             mvLoc' <- Program.getUniformLocation program' "mv"
             groundTextureLoc' <- Program.getUniformLocation program' "groundTexture"
+            viewMatrixLoc' <- Program.getUniformLocation program' "viewMatrix"
             ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
             sunLightLoc' <- getLightEmitterLoc program' "sunLight"
             (terrainGrid', mesh') <- dummyMesh
@@ -64,6 +65,7 @@ init resourceDir = do
                               , modelMatrix = identity
                               , mvpLoc = mvpLoc'
                               , mvLoc = mvLoc'
+                              , viewMatrixLoc = viewMatrixLoc'
                               , groundTextureLoc = groundTextureLoc'
                               , ambientLightLoc = ambientLightLoc'
                               , sunLightLoc = sunLightLoc'
@@ -94,6 +96,7 @@ render terrain = do
     setUniform (mvpLoc terrain) mvp
     setUniform (mvLoc terrain) mv
     setUniform (groundTextureLoc terrain) (0 :: GLint)
+    setUniform (viewMatrixLoc terrain) viewMatrix
     setAmbientLight (ambientLightLoc terrain) =<< getAmbientLight
     setLightEmitter (sunLightLoc terrain) =<< getSunLight
 
@@ -161,13 +164,13 @@ dummyColorMap =
     in colorMap
 
 red :: PixelRGB8
-red = PixelRGB8 255 0 0
+red = PixelRGB8 100 0 0
 
 green :: PixelRGB8
-green = PixelRGB8 0 255 0
+green = PixelRGB8 0 100 0
 
 blue :: PixelRGB8
-blue = PixelRGB8 0 0 255
+blue = PixelRGB8 0 0 100
 
 white :: PixelRGB8
 white = PixelRGB8 255 255 255

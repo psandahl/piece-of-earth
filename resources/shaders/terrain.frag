@@ -25,6 +25,9 @@ in vec4 vColor;
 // The ground texture for all terrain.
 uniform sampler2D groundTexture;
 
+// The view matrix. For transforming the sun light position to view space.
+uniform mat4 viewMatrix;
+
 // The ambient light.
 uniform AmbientLight ambientLight;
 
@@ -42,7 +45,7 @@ void main()
 {
   vec3 ambientColor = calcAmbientColor();
   vec3 sunColor = calcSunLight();
-  vec3 fragmentColor = baseColor() + ambientColor + sunColor;
+  vec3 fragmentColor = baseColor() * (ambientColor + sunColor);
   color = vec4(fragmentColor, 1);
 }
 
@@ -60,12 +63,13 @@ vec3 calcAmbientColor()
   return ambientLight.color * ambientLight.strength;
 }
 
-// Calculate the sun (diffuse) light.
+// Calculate the sun (diffuse) light. This lightning is performed in view space.
 vec3 calcSunLight()
 {
   vec3 normal = normalize(vNormal);
-  vec3 direction = normalize(vPosition - sunLight.position);
-  float diffuse = dot(-direction, normal);
+  vec3 sunSpot = (viewMatrix * vec4(sunLight.position, 1)).xyz;
+  vec3 direction = normalize(vPosition - sunSpot);
+  float diffuse = max(dot(normal, -direction), 0);
 
-  return vec3(0);
+  return sunLight.color * diffuse;
 }

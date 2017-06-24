@@ -65,14 +65,14 @@ setup options = do
 initialAmbientLight :: AmbientLight
 initialAmbientLight =
     AmbientLight
-        { AmbientLight.color = V3 1 0 0
-        , AmbientLight.strength = 0.2
+        { AmbientLight.color = V3 1 1 1
+        , AmbientLight.strength = 0.3
         }
 
 initialSunLight :: LightEmitter
 initialSunLight =
     LightEmitter
-        { LightEmitter.position = V3 3 1 (-100)
-        , LightEmitter.color = V3 0 0 1
+        { LightEmitter.position = V3 3 3 0
+        , LightEmitter.color = V3 1 1 1
         , LightEmitter.strength = 0
         }

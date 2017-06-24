@@ -58,6 +58,9 @@ data Terrain = Terrain
     , mvLoc            :: !Location
       -- ^ MV matrix location.
 
+    , viewMatrixLoc    :: !Location
+      -- ^ View matrix location.
+
     , groundTextureLoc :: !Location
       -- ^ Location for the ground texture.
 
