@@ -107,7 +107,7 @@ loadProgram resourceDir = do
 -- | Load the texture used for ground structure.
 loadGroundTexture :: MonadIO m => FilePath -> m (Either String Texture)
 loadGroundTexture resourceDir = do
-    let file = resourceDir </> "textures" </> "unwrap_helper.jpg"
+    let file = resourceDir </> "textures" </> "test.tga"
     Texture.fromFile2D file Texture.defaultParams2D
 
 -- | Everything below is just dummy. No fault handling etc.

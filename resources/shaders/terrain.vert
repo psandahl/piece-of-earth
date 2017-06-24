@@ -18,7 +18,7 @@ out vec4 vColor;
 
 void main()
 {
-  vTexCoord = texCoord;
+  vTexCoord = vec2(texCoord.s, 1 - texCoord.t);
   vColor = color;
   gl_Position = mvp * vec4(position, 1);
 }

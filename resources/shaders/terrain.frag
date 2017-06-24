@@ -23,7 +23,6 @@ uniform AmbientLight ambientLight;
 // Mandatory; the color for the fragment.
 out vec4 color;
 
-vec2 flipTexCoord();
 vec3 baseColor();
 
 void main()
@@ -33,20 +32,10 @@ void main()
   color = vec4(fragmentColor, 1);
 }
 
-// The texture is loaded up-side-down. The t componend must be flipped.
-vec2 flipTexCoord()
-{
-  float upper = ceil(vTexCoord.t);
-  float lower = floor(vTexCoord.t);
-  float diff = upper - vTexCoord.t;
-
-  return vec2(vTexCoord.s, lower + diff);
-}
-
 // Calculate the base color from the color map and the vertex' color. I.e. the
 // color before any lightning is applied.
 vec3 baseColor()
 {
-  vec3 textureColor = texture2D(groundTexture, flipTexCoord()).rgb;
+  vec3 textureColor = texture2D(groundTexture, vTexCoord).rgb;
   return mix(textureColor, vColor.rgb, 0.8);
 }
