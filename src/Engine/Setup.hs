@@ -9,22 +9,18 @@ module Engine.Setup
     ( setup
     ) where
 
-import           BigE.Math                    (mkPerspective)
-import           BigE.Runtime                 (Render, displayDimensions)
-import           BigE.Util                    (eitherTwo)
-import           Engine.Callback              (install)
-import           Engine.Options               (Options)
-import qualified Engine.Options               as Options
-import           Engine.State                 (State (..))
-import qualified Graphics.Camera              as Camera
-import qualified Graphics.GUI                 as GUI
-import           Graphics.Lights.AmbientLight (AmbientLight (..))
-import qualified Graphics.Lights.AmbientLight as AmbientLight
-import           Graphics.Lights.LightEmitter (LightEmitter (..))
-import qualified Graphics.Lights.LightEmitter as LightEmitter
-import qualified Graphics.Terrain             as Terrain
-import           Graphics.Types               (defaultUserInput)
-import           Linear                       (V3 (..))
+import           BigE.Math        (mkPerspective)
+import           BigE.Runtime     (Render, displayDimensions)
+import           BigE.Util        (eitherTwo)
+import           Engine.Callback  (install)
+import           Engine.Options   (Options)
+import qualified Engine.Options   as Options
+import           Engine.State     (State (..))
+import qualified Graphics.Camera  as Camera
+import qualified Graphics.GUI     as GUI
+import           Graphics.Lights  (ambientAtDawn, sunAtDawn)
+import qualified Graphics.Terrain as Terrain
+import           Graphics.Types   (defaultUserInput)
 
 -- | Setup the state for the application.
 setup :: Options -> Render State (Either String State)
@@ -46,8 +42,8 @@ setup options = do
             -- Create the 'State' record.
             let state = State { resourceDir = resourceDir'
                               , perspective = mkPerspective dimensions
-                              , ambientLight = initialAmbientLight
-                              , sunLight = initialSunLight
+                              , ambientLight = ambientAtDawn
+                              , sunLight = sunAtDawn
                               , camera = Camera.init
                               , terrain = terrain'
                               , gui = gui'
@@ -61,17 +57,3 @@ setup options = do
 
         -- No hope. Just return with the error string.
         Left err -> return $ Left err
-
-initialAmbientLight :: AmbientLight
-initialAmbientLight =
-    AmbientLight
-        { AmbientLight.color = V3 1 1 1
-        , AmbientLight.strength = 0.2
-        }
-
-initialSunLight :: LightEmitter
-initialSunLight =
-    LightEmitter
-        { LightEmitter.position = V3 0 10000 (-10000)
-        , LightEmitter.color = V3 1 1 1
-        }

@@ -27,6 +27,7 @@ executable piece-ef-earth
                        Graphics.GUI
                        Graphics.Terrain
                        Graphics.Types
+                       Graphics.Lights
                        Graphics.Lights.AmbientLight
                        Graphics.Lights.LightEmitter
   default-language:    Haskell2010

@@ -10,15 +10,15 @@ module Graphics.Camera
     , animate
     ) where
 
-import           BigE.Math        (mkRotate, toRadians)
+import           BigE.Math        (mkRotate33, toRadians)
 import           BigE.Runtime     (Render, frameDuration, getAppStateUnsafe)
 import           BigE.Util        (clamp)
 import           Engine.State     (State (terrain, userInput))
 import           Graphics.GL      (GLfloat)
 import qualified Graphics.Terrain as Terrain
 import           Graphics.Types   (Camera (..), Terrain, UserInput (..))
-import           Linear           (M33, M44, V3 (..), V4 (..), lookAt,
-                                   normalize, zero, (!*), (!*!), (*^))
+import           Linear           (V3 (..), lookAt, normalize, zero, (!*),
+                                   (!*!), (*^))
 import           Prelude          hiding (init)
 
 -- | Initialze the 'Camera'.
@@ -160,16 +160,3 @@ cameraHeight duration (V3 x y z) terrain' userInp =
 -- Model space units to move per second.
 movingSpeed :: GLfloat
 movingSpeed = 10
-
--- | Make a M33 rotation matrix.
-mkRotate33 :: V3 GLfloat -> GLfloat -> M33 GLfloat
-mkRotate33 axis = toM33 . mkRotate axis
-    where
-        toM33 :: M44 GLfloat -> M33 GLfloat
-        toM33 (V4 (V4 x1 y1 z1 _)
-                  (V4 x2 y2 z2 _)
-                  (V4 x3 y3 z3 _)
-                  _) =
-            V3 (V3 x1 y1 z1)
-               (V3 x2 y2 z2)
-               (V3 x3 y3 z3)
