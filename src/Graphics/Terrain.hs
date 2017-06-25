@@ -23,6 +23,7 @@ import qualified BigE.Program                 as Program
 import           BigE.Runtime                 (Render)
 import           BigE.TerrainGrid             (TerrainGrid)
 import qualified BigE.TerrainGrid             as TerrainGrid
+import           BigE.Texture                 (TextureParameters (lodBias))
 import qualified BigE.Texture                 as Texture
 import           BigE.Types                   (BufferUsage (..), Primitive (..),
                                                Program, ShaderType (..),
@@ -52,6 +53,9 @@ init resourceDir = do
                        "ter1-1025x1025.bmp"
                        "ter1-1025x1025.r16"
                        (1025, 1025) 300
+                       --"ter2-513x513.png"
+                       --"ter2-513x513.r16"
+                       --(513, 513) 300
 
     case eitherThree (eProgram, eGroundTexture, eModel) of
         Right (program', groundTexture', (terrainGrid', mesh')) -> do
@@ -129,7 +133,7 @@ loadProgram resourceDir = do
 loadGroundTexture :: MonadIO m => FilePath -> FilePath -> m (Either String Texture)
 loadGroundTexture resourceDir file = do
     let path = resourceDir </> "textures" </> file
-    Texture.fromFile2D path Texture.defaultParams2D
+    Texture.fromFile2D path $ Texture.defaultParams2D { lodBias = -0.2 }
 
 -- | Load a 'Mesh' and make a 'TerrainGrid' from the external files in the
 -- resource directory.
