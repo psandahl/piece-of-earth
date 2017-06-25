@@ -149,7 +149,7 @@ defaultUserInput =
     UserInput
         { renderWireframe = False
         , renderStatusBar = False
-        , terrainCollision = False
+        , terrainCollision = True
         , flyMode = False
         , turnLeft = False
         , turnRight = False
