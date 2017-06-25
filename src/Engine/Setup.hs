@@ -72,6 +72,6 @@ initialAmbientLight =
 initialSunLight :: LightEmitter
 initialSunLight =
     LightEmitter
-        { LightEmitter.position = V3 3 30 (-100)
+        { LightEmitter.position = V3 0 10000 (-10000)
         , LightEmitter.color = V3 1 1 1
         }

@@ -159,7 +159,7 @@ cameraHeight duration (V3 x y z) terrain' userInp =
 
 -- Model space units to move per second.
 movingSpeed :: GLfloat
-movingSpeed = 1
+movingSpeed = 10
 
 -- | Make a M33 rotation matrix.
 mkRotate33 :: V3 GLfloat -> GLfloat -> M33 GLfloat

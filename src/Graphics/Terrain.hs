@@ -15,8 +15,7 @@ module Graphics.Terrain
     , terrainHeight
     ) where
 
-import           BigE.ImageMap                (ImageMap, PixelRGB8 (..),
-                                               VectorSpec (..))
+import           BigE.ImageMap                (FileSpec (..), ImageMap)
 import qualified BigE.ImageMap                as ImageMap
 import           BigE.Mesh                    (Mesh)
 import qualified BigE.Mesh                    as Mesh
@@ -28,9 +27,9 @@ import qualified BigE.Texture                 as Texture
 import           BigE.Types                   (BufferUsage (..), Primitive (..),
                                                Program, ShaderType (..),
                                                Texture, setUniform)
-import           BigE.Util                    (eitherTwo)
+import           BigE.Util                    (eitherThree, eitherTwo)
 import           Control.Monad.IO.Class       (MonadIO)
-import           Data.Vector                  (fromList)
+--import           Data.Vector                  (fromList)
 import           Engine.State                 (State, getAmbientLight,
                                                getPerspectiveMatrix,
                                                getSunLight, getViewMatrix)
@@ -48,17 +47,21 @@ import           System.FilePath              ((</>))
 init :: MonadIO m => FilePath -> m (Either String Terrain)
 init resourceDir = do
     eProgram <- loadProgram resourceDir
-    eGroundTexture <- loadGroundTexture resourceDir
+    eGroundTexture <- loadGroundTexture resourceDir "dirt.tga"
+    eModel <- loadMesh resourceDir
+                       "ter1-1025x1025.bmp"
+                       "ter1-1025x1025.r16"
+                       (1025, 1025) 300
 
-    case eitherTwo (eProgram, eGroundTexture) of
-        Right (program', groundTexture') -> do
+    case eitherThree (eProgram, eGroundTexture, eModel) of
+        Right (program', groundTexture', (terrainGrid', mesh')) -> do
             mvpMatrixLoc' <- Program.getUniformLocation program' "mvpMatrix"
             mvMatrixLoc' <- Program.getUniformLocation program' "mvMatrix"
             vMatrixLoc' <- Program.getUniformLocation program' "vMatrix"
             groundTextureLoc' <- Program.getUniformLocation program' "groundTexture"
             ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
             sunLightLoc' <- getLightEmitterLoc program' "sunLight"
-            (terrainGrid', mesh') <- dummyMesh
+            --(terrainGrid', mesh') <- dummyMesh
 
             return $
                 Right Terrain { program = program'
@@ -123,11 +126,61 @@ loadProgram resourceDir = do
                      ]
 
 -- | Load the texture used for ground structure.
-loadGroundTexture :: MonadIO m => FilePath -> m (Either String Texture)
-loadGroundTexture resourceDir = do
-    let file = resourceDir </> "textures" </> "test.tga"
-    Texture.fromFile2D file Texture.defaultParams2D
+loadGroundTexture :: MonadIO m => FilePath -> FilePath -> m (Either String Texture)
+loadGroundTexture resourceDir file = do
+    let path = resourceDir </> "textures" </> file
+    Texture.fromFile2D path Texture.defaultParams2D
 
+-- | Load a 'Mesh' and make a 'TerrainGrid' from the external files in the
+-- resource directory.
+loadMesh :: MonadIO m => FilePath -> FilePath -> FilePath
+         -> (Int, Int) -> Float -> m (Either String (TerrainGrid, Mesh))
+loadMesh resourceDir colorFile heightFile heightDimensions heightScale = do
+
+    -- Load maps.
+    eColorMap <- loadColorMap resourceDir colorFile
+    eHeightMap <- loadRawHeightMap resourceDir heightFile heightDimensions
+    case eitherTwo (eColorMap, eHeightMap) of
+
+        -- Succesful loading maps.
+        Right (colorMap, heightMap) ->
+
+            -- Convert the height map to a terrain grid.
+            case TerrainGrid.fromImageMap heightScale heightMap of
+                Right terrainGrid' ->
+
+                    -- Export the grid to a mesh, using a color map.
+                    case TerrainGrid.asVertPNTxC colorMap terrainGrid' of
+                        Right (verts, indices) -> do
+
+                            -- Yay. Done!
+                            mesh' <- Mesh.fromVector StaticDraw verts indices
+                            return $ Right (terrainGrid', mesh')
+
+                        -- Failed exporting to a mesh.
+                        Left err -> return $ Left err
+
+                -- Failed conversion to terrain grid.
+                Left err          -> return $ Left err
+
+        -- Failed loading maps.
+        Left err                    -> return $ Left err
+
+-- | Load a heightmap from raw file.
+loadRawHeightMap :: MonadIO m => FilePath -> FilePath -> (Int, Int)
+                 -> m (Either String ImageMap)
+loadRawHeightMap resourceDir file dimensions = do
+    let path = resourceDir </> "heightmaps" </> file
+        spec = Raw16File dimensions path
+    ImageMap.fromFile spec
+
+-- Load a color map from a RGB file.
+loadColorMap :: MonadIO m => FilePath -> FilePath -> m (Either String ImageMap)
+loadColorMap resourceDir file = do
+    let path = resourceDir </> "colormaps" </> file
+        spec = RGB8File path
+    ImageMap.fromFile spec
+{-}
 -- | Everything below is just dummy. No fault handling etc.
 dummyMesh :: MonadIO m => m (TerrainGrid, Mesh)
 dummyMesh = do
@@ -174,3 +227,4 @@ blue = PixelRGB8 0 0 100
 
 white :: PixelRGB8
 white = PixelRGB8 255 255 255
+-}
