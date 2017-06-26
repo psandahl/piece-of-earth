@@ -1,3 +1,4 @@
+{-# LANGUAGE DuplicateRecordFields #-}
 -- |
 -- Module: Graphics.Types
 -- Copyright: (c) 2017 Patrik Sandahl
@@ -12,6 +13,7 @@ module Graphics.Types
     ( Camera (..)
     , Terrain (..)
     , GUI (..)
+    , SkyBox (..)
     , TextEntity (..)
     , UserInput (..)
     , defaultUserInput
@@ -78,6 +80,15 @@ data Terrain = Terrain
 
     , mesh             :: !Mesh
       -- ^ The mesh.
+    } deriving Show
+
+-- | SkyBox record.
+data SkyBox = SkyBox
+    { program      :: !Program
+      -- ^ The shader program for rendering of sky box.
+
+    , mvpMatrixLoc :: !Location
+      -- ^ MVP matrix location.
     } deriving Show
 
 -- | GUI record.

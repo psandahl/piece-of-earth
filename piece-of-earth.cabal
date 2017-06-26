@@ -25,6 +25,7 @@ executable piece-ef-earth
                        Engine.Teardown
                        Graphics.Camera
                        Graphics.GUI
+                       Graphics.SkyBox
                        Graphics.Terrain
                        Graphics.Types
                        Graphics.Lights.AmbientLight
