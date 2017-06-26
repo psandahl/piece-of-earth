@@ -12,6 +12,7 @@ module Engine.State
     , getFrameCount
     , incFrameCount
     , getTimeOfDay
+    , setTimeOfDay
     ) where
 
 import           BigE.Runtime          (Render, getAppStateUnsafe,
@@ -70,3 +71,7 @@ incFrameCount = modifyAppState $ \state ->
 
 getTimeOfDay :: Render State TimeOfDay
 getTimeOfDay = timeOfDay <$> getAppStateUnsafe
+
+setTimeOfDay :: TimeOfDay -> Render State ()
+setTimeOfDay tod = modifyAppState $ \state ->
+    state { timeOfDay = tod }

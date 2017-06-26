@@ -9,14 +9,16 @@ module Engine.Callback
     ( install
     ) where
 
-import           BigE.Math      (mkPerspective)
-import           BigE.Runtime   (Key (..), ModifierKeys, Render,
-                                 getAppStateUnsafe, modifyAppState, putAppState,
-                                 setKeyPressedCallback, setKeyReleasedCallback,
-                                 setWindowSizeCallback)
-import           Engine.State   (State (..))
-import           Graphics.GUI   (requestCenterFlash)
-import           Graphics.Types (Camera (pitch), UserInput (..))
+import           BigE.Math             (mkPerspective)
+import           BigE.Runtime          (Key (..), ModifierKeys (..), Render,
+                                        getAppStateUnsafe, modifyAppState,
+                                        putAppState, setKeyPressedCallback,
+                                        setKeyReleasedCallback,
+                                        setWindowSizeCallback)
+import           Engine.State          (State (..), setTimeOfDay)
+import           Graphics.GUI          (requestCenterFlash)
+import           Graphics.Types        (Camera (pitch), UserInput (..))
+import           Simulation.Atmosphere (TimeOfDay (..))
 
 -- | Install callbacks.
 install :: Render State ()
@@ -35,53 +37,92 @@ windowSizeCallback width height =
 -- | Callback to handle user pressing keys.
 keyPressedCallback :: Key -> ModifierKeys -> Render State ()
 
--- Handle F1, wireframe toggle.
-keyPressedCallback Key'F1 _modifierKeys = do
-    state <- getAppStateUnsafe
-    let userInp = userInput state
+keyPressedCallback Key'F1 modifierKeys
+      -- Handle Shift-F1. Set lightning to sunrise.
+    | shift modifierKeys = do
+        setTimeOfDay Sunrise
+        requestCenterFlash "[timeOfDay: sunrise]"
 
-    if renderWireframe userInp then
-        do putAppState $ state { userInput = userInp { renderWireframe = False }}
-           requestCenterFlash "[-wireframe]"
-    else
-        do putAppState $ state { userInput = userInp { renderWireframe = True }}
-           requestCenterFlash "[+wireframe]"
+      -- Handle F1, wireframe toggle.
+    | otherwise = do
+        state <- getAppStateUnsafe
+        let userInp = userInput state
 
--- Handle F2, status bar toggle.
-keyPressedCallback Key'F2 _modifierKeys = do
-    state <- getAppStateUnsafe
-    let userInp = userInput state
+        if renderWireframe userInp then
+            do putAppState $ state { userInput = userInp { renderWireframe = False }}
+               requestCenterFlash "[-wireframe]"
+        else
+            do putAppState $ state { userInput = userInp { renderWireframe = True }}
+               requestCenterFlash "[+wireframe]"
 
-    if renderStatusBar userInp then
-        do putAppState $ state { userInput = userInp { renderStatusBar = False }}
-           requestCenterFlash "[-status bar]"
-    else
-        do putAppState $ state { userInput = userInp { renderStatusBar = True }}
-           requestCenterFlash "[+status bar]"
+keyPressedCallback Key'F2 modifierKeys
+      -- Handle Shift-F2. Set lightning to morning.
+    | shift modifierKeys = do
+        setTimeOfDay Morning
+        requestCenterFlash "[timeOfDay : morning]"
+    | otherwise = do
 
--- Handle F3, terrain collision toggle.
-keyPressedCallback Key'F3 _modifierKeys = do
-    state <- getAppStateUnsafe
-    let userInp = userInput state
+      -- Handle F2, status bar toggle.
+        state <- getAppStateUnsafe
+        let userInp = userInput state
 
-    if terrainCollision userInp then
-        do putAppState $ state { userInput = userInp { terrainCollision = False }}
-           requestCenterFlash "[-terrain collision]"
-    else
-        do putAppState $ state { userInput = userInp { terrainCollision = True }}
-           requestCenterFlash "[+terrain collision]"
+        if renderStatusBar userInp then
+            do putAppState $ state { userInput = userInp { renderStatusBar = False }}
+               requestCenterFlash "[-status bar]"
+        else
+            do putAppState $ state { userInput = userInp { renderStatusBar = True }}
+               requestCenterFlash "[+status bar]"
 
--- Handle F4, fly mode toggle.
-keyPressedCallback Key'F4 _modifierKeys = do
-   state <- getAppStateUnsafe
-   let userInp = userInput state
+keyPressedCallback Key'F3 modifierKeys
+      -- Handle Shift-F3. Set lightning to noon.
+    | shift modifierKeys = do
+        setTimeOfDay Noon
+        requestCenterFlash "[timeOfDay: noon]"
 
-   if flyMode userInp then
-       do putAppState $ state { userInput = userInp { flyMode = False }}
-          requestCenterFlash "[-fly mode]"
-   else
-       do putAppState $ state { userInput = userInp { flyMode = True }}
-          requestCenterFlash "[+fly mode. w=up, s=down]"
+    | otherwise = do
+        -- Handle F3, terrain collision toggle.
+        state <- getAppStateUnsafe
+        let userInp = userInput state
+
+        if terrainCollision userInp then
+            do putAppState $ state { userInput = userInp { terrainCollision = False }}
+               requestCenterFlash "[-terrain collision]"
+        else
+            do putAppState $ state { userInput = userInp { terrainCollision = True }}
+               requestCenterFlash "[+terrain collision]"
+
+keyPressedCallback Key'F4 modifierKeys
+      -- Handle Shift-F4. Set lightning to afternoon.
+    | shift modifierKeys = do
+        setTimeOfDay Afternoon
+        requestCenterFlash "[timeOfDay: afternoon]"
+
+    | otherwise = do
+
+      -- Handle F4, fly mode toggle.
+      state <- getAppStateUnsafe
+      let userInp = userInput state
+
+      if flyMode userInp then
+          do putAppState $ state { userInput = userInp { flyMode = False }}
+             requestCenterFlash "[-fly mode]"
+      else
+          do putAppState $ state { userInput = userInp { flyMode = True }}
+             requestCenterFlash "[+fly mode. w=up, s=down]"
+
+keyPressedCallback Key'F5 modifierKeys
+      -- Handle Shift-F5. Set lightning to sunset.
+    | shift modifierKeys = do
+        setTimeOfDay Sunset
+        requestCenterFlash "[timeOfDay: sunset]"
+    | otherwise = return ()
+
+keyPressedCallback Key'F6 modifierKeys
+      -- Handle Shift-F6. Set lightning to night.
+    | shift modifierKeys = do
+        setTimeOfDay Night
+        requestCenterFlash "[timeOfDay: night]"
+    | otherwise = return ()
 
 -- Handle left arrow, activate turning left.
 keyPressedCallback Key'Left _modifierKeys =
@@ -166,3 +207,10 @@ modifyUserInput :: (UserInput -> UserInput) -> Render State ()
 modifyUserInput g =
     modifyAppState $ \state ->
         state { userInput = g (userInput state) }
+
+shift :: ModifierKeys -> Bool
+shift modifierKeys =
+    modifierKeysShift modifierKeys &&
+    not (modifierKeysAlt modifierKeys) &&
+    not (modifierKeysControl modifierKeys) &&
+    not (modifierKeysSuper modifierKeys)
