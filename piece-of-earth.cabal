@@ -27,7 +27,6 @@ executable piece-ef-earth
                        Graphics.GUI
                        Graphics.Terrain
                        Graphics.Types
-                       Graphics.Lights
                        Graphics.Lights.AmbientLight
                        Graphics.Lights.LightEmitter
                        Simulation.Atmosphere

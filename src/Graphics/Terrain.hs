@@ -31,9 +31,8 @@ import           BigE.Types                   (BufferUsage (..), Primitive (..),
 import           BigE.Util                    (eitherThree, eitherTwo)
 import           Control.Monad.IO.Class       (MonadIO)
 --import           Data.Vector                  (fromList)
-import           Engine.State                 (State, getAmbientLight,
-                                               getPerspectiveMatrix,
-                                               getSunLight, getViewMatrix)
+import           Engine.State                 (State, getPerspectiveMatrix,
+                                               getTimeOfDay, getViewMatrix)
 import           Graphics.GL                  (GLfloat, GLint)
 import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
                                                setAmbientLight)
@@ -42,6 +41,7 @@ import           Graphics.Lights.LightEmitter (getLightEmitterLoc,
 import           Graphics.Types               (Terrain (..))
 import           Linear                       (identity, (!*!))
 import           Prelude                      hiding (init)
+import           Simulation.Atmosphere        (ambientLight, sunLight)
 import           System.FilePath              ((</>))
 
 -- | Initialize the terrain given the path to the resource base directory.
@@ -104,8 +104,10 @@ render terrain = do
     setUniform (mvMatrixLoc terrain) mvMatrix
     setUniform (groundTextureLoc terrain) (0 :: GLint)
     setUniform (vMatrixLoc terrain) vMatrix
-    setAmbientLight (ambientLightLoc terrain) =<< getAmbientLight
-    setLightEmitter (sunLightLoc terrain) =<< getSunLight
+
+    timeOfDay <- getTimeOfDay
+    setAmbientLight (ambientLightLoc terrain) $ ambientLight timeOfDay
+    setLightEmitter (sunLightLoc terrain) $ sunLight timeOfDay
 
     -- Render stuff.
     Mesh.enable $ mesh terrain

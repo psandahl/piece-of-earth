@@ -11,52 +11,47 @@ module Engine.State
     , getViewMatrix
     , getFrameCount
     , incFrameCount
-    , getAmbientLight
-    , getSunLight
+    , getTimeOfDay
     ) where
 
-import           BigE.Runtime                 (Render, getAppStateUnsafe,
-                                               modifyAppState)
-import           Graphics.GL                  (GLfloat)
-import           Graphics.Lights.AmbientLight (AmbientLight)
-import           Graphics.Lights.LightEmitter (LightEmitter)
-import           Graphics.Types               (Camera (viewMatrix), GUI,
-                                               Terrain, UserInput)
-import           Linear                       (M44)
+import           BigE.Runtime          (Render, getAppStateUnsafe,
+                                        modifyAppState)
+import           Graphics.GL           (GLfloat)
+import           Graphics.Types        (Camera (viewMatrix), GUI, Terrain,
+                                        UserInput)
+import           Linear                (M44)
+import           Simulation.Atmosphere (TimeOfDay)
 
 -- | The state of the application. It will be carried by the runtime IORef
 -- variable.
 data State = State
-    { resourceDir  :: !FilePath
+    { resourceDir :: !FilePath
       -- ^ The base directory for all external resource files.
 
-    , perspective  :: !(M44 GLfloat)
+    , perspective :: !(M44 GLfloat)
       -- ^ The perspective matrix for the application. Will be updated when
       -- the screen resolution change.
 
-    , ambientLight :: !AmbientLight
-      -- ^ Ambient light used for rendering a scene.
+    , timeOfDay   :: !TimeOfDay
+      -- ^ The current time of day.
 
-    , sunLight     :: !LightEmitter
-      -- ^ Sun light emitter used for rendering a scene.
-
-    , camera       :: !Camera
+    , camera      :: !Camera
       -- ^ The application's camera.
 
-    , terrain      :: !Terrain
+    , terrain     :: !Terrain
       -- ^ The application's container holding all terrain.
 
-    , gui          :: !GUI
+    , gui         :: !GUI
       -- ^ The application's GUI.
 
-    , frameCount   :: !Int
+    , frameCount  :: !Int
       -- ^ The current frame number.
 
-    , frameRate    :: !Double
+    , frameRate   :: !Double
       -- ^ The current frame rate. Will only change if it's differ significantly
       -- from last frame's measured rate.
 
-    , userInput    :: !UserInput
+    , userInput   :: !UserInput
       -- ^ The user input valid for the frame.
     } deriving Show
 
@@ -73,8 +68,5 @@ incFrameCount :: Render State ()
 incFrameCount = modifyAppState $ \state ->
     state { frameCount = frameCount state + 1}
 
-getAmbientLight :: Render State AmbientLight
-getAmbientLight = ambientLight <$> getAppStateUnsafe
-
-getSunLight :: Render State LightEmitter
-getSunLight = sunLight <$> getAppStateUnsafe
+getTimeOfDay :: Render State TimeOfDay
+getTimeOfDay = timeOfDay <$> getAppStateUnsafe
