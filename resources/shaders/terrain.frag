@@ -51,7 +51,7 @@ void main()
 vec3 baseColor()
 {
   vec3 textureColor = texture2D(groundTexture, vTexCoord).rgb;
-  return mix(textureColor, vColor.rgb, 0.9);
+  return mix(textureColor, vColor.rgb, 0.8);
 }
 
 // Calculate the ambient light for the fragment.
