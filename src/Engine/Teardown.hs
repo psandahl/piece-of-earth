@@ -12,6 +12,7 @@ module Engine.Teardown
 import           BigE.Runtime     (Render, getAppStateUnsafe)
 import           Engine.State     (State (..))
 import qualified Graphics.GUI     as GUI
+import qualified Graphics.SkyBox  as SkyBox
 import qualified Graphics.Terrain as Terrain
 
 -- | Teardown the application. Clean-up time.
@@ -19,5 +20,6 @@ teardown :: Render State ()
 teardown = do
     state <- getAppStateUnsafe
 
+    SkyBox.delete $ skyBox state
     Terrain.delete $ terrain state
     GUI.delete $ gui state

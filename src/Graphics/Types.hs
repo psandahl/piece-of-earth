@@ -84,11 +84,14 @@ data Terrain = Terrain
 
 -- | SkyBox record.
 data SkyBox = SkyBox
-    { program      :: !Program
+    { program     :: !Program
       -- ^ The shader program for rendering of sky box.
 
-    , mvpMatrixLoc :: !Location
-      -- ^ MVP matrix location.
+    , vpMatrixLoc :: !Location
+      -- ^ VP matrix location.
+
+    , mesh        :: !Mesh
+      -- ^ The mesh.
     } deriving Show
 
 -- | GUI record.

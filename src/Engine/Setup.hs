@@ -11,13 +11,14 @@ module Engine.Setup
 
 import           BigE.Math             (mkPerspective)
 import           BigE.Runtime          (Render, displayDimensions)
-import           BigE.Util             (eitherTwo)
+import           BigE.Util             (eitherThree)
 import           Engine.Callback       (install)
 import           Engine.Options        (Options)
 import qualified Engine.Options        as Options
 import           Engine.State          (State (..))
 import qualified Graphics.Camera       as Camera
 import qualified Graphics.GUI          as GUI
+import qualified Graphics.SkyBox       as SkyBox
 import qualified Graphics.Terrain      as Terrain
 import           Graphics.Types        (defaultUserInput)
 import           Simulation.Atmosphere (TimeOfDay (..))
@@ -27,12 +28,13 @@ setup :: Options -> Render State (Either String State)
 setup options = do
     -- Start by initializing things that can fail.
     let resourceDir' = Options.resourceDir options
+    eSkyBox <- SkyBox.init resourceDir'
     eTerrain <- Terrain.init resourceDir'
     eGUI <- GUI.init resourceDir'
 
-    case eitherTwo (eTerrain, eGUI) of
+    case eitherThree (eSkyBox, eTerrain, eGUI) of
 
-        Right (terrain', gui') -> do
+        Right (skyBox', terrain', gui') -> do
 
             -- Install callbacks.
             install
@@ -44,6 +46,7 @@ setup options = do
                               , perspective = mkPerspective dimensions
                               , timeOfDay = Noon
                               , camera = Camera.init
+                              , skyBox = skyBox'
                               , terrain = terrain'
                               , gui = gui'
                               , frameCount = 0

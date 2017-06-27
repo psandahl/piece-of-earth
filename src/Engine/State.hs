@@ -18,8 +18,8 @@ module Engine.State
 import           BigE.Runtime          (Render, getAppStateUnsafe,
                                         modifyAppState)
 import           Graphics.GL           (GLfloat)
-import           Graphics.Types        (Camera (viewMatrix), GUI, Terrain,
-                                        UserInput)
+import           Graphics.Types        (Camera (viewMatrix), GUI, SkyBox,
+                                        Terrain, UserInput)
 import           Linear                (M44)
 import           Simulation.Atmosphere (TimeOfDay)
 
@@ -38,6 +38,9 @@ data State = State
 
     , camera      :: !Camera
       -- ^ The application's camera.
+
+    , skyBox      :: !SkyBox
+      -- ^ The application's sky box.
 
     , terrain     :: !Terrain
       -- ^ The application's container holding all terrain.
