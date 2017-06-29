@@ -98,7 +98,7 @@ render terrain = do
     pMatrix <- getPerspectiveMatrix
     vMatrix <- getViewMatrix
     let mvMatrix = vMatrix !*! modelMatrix terrain
-        mvpMatrix = pMatrix !*! vMatrix !*! modelMatrix terrain
+        mvpMatrix = pMatrix !*! mvMatrix
 
     setUniform (mvpMatrixLoc terrain) mvpMatrix
     setUniform (mvMatrixLoc terrain) mvMatrix
