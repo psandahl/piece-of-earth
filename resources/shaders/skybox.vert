@@ -8,7 +8,11 @@ layout (location = 0) in vec3 position;
 // matrix component is needed.
 uniform mat4 vpMatrix;
 
+// Pass the untransformed position to the fragment shader.
+out vec3 vPosition;
+
 void main()
 {
+  vPosition = position;
   gl_Position = vpMatrix * vec4(position, 1);
 }
