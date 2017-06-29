@@ -95,10 +95,10 @@ render terrain = do
     Texture.enable2D 0 $ groundTexture terrain
 
     -- Set uniforms.
-    perspectiveMatrix <- getPerspectiveMatrix
+    pMatrix <- getPerspectiveMatrix
     vMatrix <- getViewMatrix
     let mvMatrix = vMatrix !*! modelMatrix terrain
-        mvpMatrix = perspectiveMatrix !*! vMatrix !*! modelMatrix terrain
+        mvpMatrix = pMatrix !*! vMatrix !*! modelMatrix terrain
 
     setUniform (mvpMatrixLoc terrain) mvpMatrix
     setUniform (mvMatrixLoc terrain) mvMatrix

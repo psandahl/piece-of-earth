@@ -15,15 +15,16 @@ import           BigE.Attribute.Vert_P  (Vertex (..))
 import qualified BigE.Mesh              as Mesh
 import qualified BigE.Program           as Program
 import           BigE.Runtime           (Render)
-import           BigE.Types             (BufferUsage (..), Program,
-                                         ShaderType (..))
+import           BigE.Types             (BufferUsage (..), Primitive (..),
+                                         Program, ShaderType (..), setUniform)
 import           Control.Monad.IO.Class (MonadIO)
 import           Data.Vector.Storable   (Vector)
 import qualified Data.Vector.Storable   as Vector
-import           Engine.State           (State)
+import           Engine.State           (State, getPerspectiveMatrix,
+                                         getViewMatrix)
 import           Graphics.GL            (GLfloat, GLuint)
 import           Graphics.Types         (SkyBox (..))
-import           Linear                 (V3 (..))
+import           Linear                 (V3 (..), (!*!))
 import           Prelude                hiding (init)
 import           System.FilePath        ((</>))
 
@@ -47,7 +48,21 @@ init resourceDir = do
 
 -- | Render the 'SkyBox'.
 render :: SkyBox -> Render State ()
-render _skyBox = return ()
+render skyBox = do
+    Program.enable $ program skyBox
+
+    -- Set uniforms.
+    pMatrix <- getPerspectiveMatrix
+    vMatrix <- getViewMatrix
+    setUniform (vpMatrixLoc skyBox) $ pMatrix !*! vMatrix
+
+    -- Render stuff.
+    Mesh.enable $ mesh skyBox
+    Mesh.render Triangles $ mesh skyBox
+
+    -- Clean up
+    Mesh.disable
+    Program.disable
 
 -- | Delete the 'SkyBox' resources.
 delete :: SkyBox -> Render State ()
