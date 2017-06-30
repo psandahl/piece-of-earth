@@ -40,7 +40,7 @@ render = do
 -- | Render the sky box.
 renderSkyBox :: Render State ()
 renderSkyBox = do
-    --disableDepth
+    disableDepth
     disableBackFaceCulling
 
     state <- getAppStateUnsafe
@@ -73,8 +73,8 @@ renderGUI = do
 enableDepth :: MonadIO m => m ()
 enableDepth = GL.glEnable GL.GL_DEPTH_TEST
 
---disableDepth :: MonadIO m => m ()
---disableDepth = GL.glDisable GL.GL_DEPTH_TEST
+disableDepth :: MonadIO m => m ()
+disableDepth = GL.glDisable GL.GL_DEPTH_TEST
 
 enableBackFaceCulling :: MonadIO m => m ()
 enableBackFaceCulling = do

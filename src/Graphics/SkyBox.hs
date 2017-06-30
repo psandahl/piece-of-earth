@@ -24,7 +24,7 @@ import           Engine.State           (State, getPerspectiveMatrix,
                                          getViewMatrix)
 import           Graphics.GL            (GLfloat, GLuint)
 import           Graphics.Types         (SkyBox (..))
-import           Linear                 (V3 (..), (!*!))
+import           Linear                 (M44, V3 (..), V4 (..), (!*!))
 import           Prelude                hiding (init)
 import           System.FilePath        ((</>))
 
@@ -53,7 +53,7 @@ render skyBox = do
 
     -- Set uniforms.
     pMatrix <- getPerspectiveMatrix
-    vMatrix <- getViewMatrix
+    vMatrix <- removeTranslation <$> getViewMatrix
     setUniform (vpMatrixLoc skyBox) $ pMatrix !*! vMatrix
 
     -- Render stuff.
@@ -116,3 +116,13 @@ skyBoxIndices = Vector.fromList
       -- Bottom quad.
     , 3, 2, 6, 3, 6, 7
     ]
+
+removeTranslation :: M44 GLfloat -> M44 GLfloat
+removeTranslation (V4 (V4 x1 y1 z1 _)
+                      (V4 x2 y2 z2 _)
+                      (V4 x3 y3 z3 _)
+                      (V4 x4 y4 z4 w4)) =
+    V4 (V4 x1 y1 z1 0)
+       (V4 x2 y2 z2 0)
+       (V4 x3 y3 z3 0)
+       (V4 x4 y4 z4 w4)
