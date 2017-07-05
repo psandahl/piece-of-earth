@@ -1,4 +1,4 @@
-// Vertex shader for the sky box.
+// Vertex shader for the sky dome.
 #version 330 core
 
 // Attributes for each vertex.

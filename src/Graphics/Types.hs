@@ -13,7 +13,7 @@ module Graphics.Types
     ( Camera (..)
     , Terrain (..)
     , GUI (..)
-    , SkyBox (..)
+    , SkyDome (..)
     , TextEntity (..)
     , UserInput (..)
     , defaultUserInput
@@ -82,10 +82,10 @@ data Terrain = Terrain
       -- ^ The mesh.
     } deriving Show
 
--- | SkyBox record.
-data SkyBox = SkyBox
+-- | SkyDome record.
+data SkyDome = SkyDome
     { program     :: !Program
-      -- ^ The shader program for rendering of sky box.
+      -- ^ The shader program for rendering of sky dome.
 
     , vpMatrixLoc :: !Location
       -- ^ VP matrix location.

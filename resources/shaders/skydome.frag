@@ -1,4 +1,4 @@
-// Fragment shader for the sky box.
+// Fragment shader for the sky dome.
 #version 330 core
 
 // The untransformed position from the vertex shader.

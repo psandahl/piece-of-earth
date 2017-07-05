@@ -1,11 +1,11 @@
 -- |
--- Module: Graphics.SkyBox
+-- Module: Graphics.SkyDome
 -- Copyright: (c) 2017 Patrik Sandahl
 -- Licence: MIT
 -- Maintainer: Patrik Sandahl <patrik.sandahl@gmail.com>
 -- Stability: experimental
 -- Portability: portable
-module Graphics.SkyBox
+module Graphics.SkyDome
     ( init
     , render
     , delete
@@ -23,13 +23,13 @@ import           Control.Monad.IO.Class (MonadIO)
 import           Engine.State           (State, getPerspectiveMatrix,
                                          getViewMatrix)
 import           Graphics.GL            (GLfloat)
-import           Graphics.Types         (SkyBox (..))
+import           Graphics.Types         (SkyDome (..))
 import           Linear                 (M44, V4 (..), (!*!))
 import           Prelude                hiding (init)
 import           System.FilePath        ((</>))
 
--- | Initialize the skybox given the path to the resource base directory.
-init :: MonadIO m => FilePath -> m (Either String SkyBox)
+-- | Initialize the sky dome given the path to the resource base directory.
+init :: MonadIO m => FilePath -> m (Either String SkyDome)
 init resourceDir = do
     eProgram <- loadProgram resourceDir
     eMesh <- loadMesh resourceDir
@@ -38,7 +38,7 @@ init resourceDir = do
         Right (program', mesh') -> do
             vpMatrixLoc' <- Program.getUniformLocation program' "vpMatrix"
 
-            return $ Right SkyBox
+            return $ Right SkyDome
                 { program = program'
                 , vpMatrixLoc = vpMatrixLoc'
                 , mesh = mesh'
@@ -46,38 +46,38 @@ init resourceDir = do
 
         Left err -> return $ Left err
 
--- | Render the 'SkyBox'.
-render :: SkyBox -> Render State ()
-render skyBox = do
-    Program.enable $ program skyBox
+-- | Render the 'SkyDome'.
+render :: SkyDome -> Render State ()
+render skyDome = do
+    Program.enable $ program skyDome
 
     -- Set uniforms.
     pMatrix <- getPerspectiveMatrix
     vMatrix <- removeTranslation <$> getViewMatrix
-    setUniform (vpMatrixLoc skyBox) $ pMatrix !*! vMatrix
+    setUniform (vpMatrixLoc skyDome) $ pMatrix !*! vMatrix
 
     -- Render stuff.
-    Mesh.enable $ mesh skyBox
-    Mesh.render Triangles $ mesh skyBox
+    Mesh.enable $ mesh skyDome
+    Mesh.render Triangles $ mesh skyDome
 
     -- Clean up
     Mesh.disable
     Program.disable
 
--- | Delete the 'SkyBox' resources.
-delete :: SkyBox -> Render State ()
+-- | Delete the 'SkyDome' resources.
+delete :: SkyDome -> Render State ()
 delete = Program.delete . program
 
--- | Load the program used for 'SkyBox' rendering.
+-- | Load the program used for 'SkyDome' rendering.
 loadProgram :: MonadIO m => FilePath -> m (Either String Program)
 loadProgram resourceDir = do
-    let vertexShader = resourceDir </> "shaders" </> "skybox.vert"
-        fragmentShader = resourceDir </> "shaders" </> "skybox.frag"
+    let vertexShader = resourceDir </> "shaders" </> "skydome.vert"
+        fragmentShader = resourceDir </> "shaders" </> "skydome.frag"
     Program.fromFile [ (VertexShader, vertexShader)
                      , (FragmentShader, fragmentShader)
                      ]
 
--- | Load the model used for 'SkyBox' mesh.
+-- | Load the model used for 'SkyDome' mesh.
 loadMesh :: MonadIO m => FilePath -> m (Either String Mesh)
 loadMesh resourceDir = do
     let modelFile = resourceDir </> "models" </> "sphere.obj"

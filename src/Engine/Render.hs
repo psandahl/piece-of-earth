@@ -15,7 +15,7 @@ import           Control.Monad.IO.Class (MonadIO)
 import           Engine.State           (State (..))
 import qualified Graphics.GL            as GL
 import qualified Graphics.GUI           as GUI
-import qualified Graphics.SkyBox        as SkyBox
+import qualified Graphics.SkyDome       as SkyDome
 import qualified Graphics.Terrain       as Terrain
 import           Graphics.Types         (UserInput (..))
 
@@ -27,8 +27,8 @@ render = do
     -- the sky initially will render all pixels.
     GL.glClear GL.GL_DEPTH_BUFFER_BIT
 
-    -- Render the skybox.
-    renderSkyBox
+    -- Render the sky dome.
+    renderSkyDome
 
     -- Render the world.
     renderWorld
@@ -36,9 +36,9 @@ render = do
     -- Render the GUI.
     renderGUI
 
--- | Render the sky box.
-renderSkyBox :: Render State ()
-renderSkyBox = do
+-- | Render the sky dome.
+renderSkyDome :: Render State ()
+renderSkyDome = do
 
     -- Render the sky without any depth information. Everything else rendered
     -- after the sky will be visible in front of it.
@@ -49,7 +49,7 @@ renderSkyBox = do
     enableFrontFaceCulling
 
     state <- getAppStateUnsafe
-    SkyBox.render $ skyBox state
+    SkyDome.render $ skyDome state
 
 -- | Render the terrain and all its entities.
 renderWorld :: Render State ()

@@ -18,7 +18,7 @@ import qualified Engine.Options        as Options
 import           Engine.State          (State (..))
 import qualified Graphics.Camera       as Camera
 import qualified Graphics.GUI          as GUI
-import qualified Graphics.SkyBox       as SkyBox
+import qualified Graphics.SkyDome      as SkyDome
 import qualified Graphics.Terrain      as Terrain
 import           Graphics.Types        (defaultUserInput)
 import           Simulation.Atmosphere (TimeOfDay (..))
@@ -28,13 +28,13 @@ setup :: Options -> Render State (Either String State)
 setup options = do
     -- Start by initializing things that can fail.
     let resourceDir' = Options.resourceDir options
-    eSkyBox <- SkyBox.init resourceDir'
+    eSkyDome <- SkyDome.init resourceDir'
     eTerrain <- Terrain.init resourceDir'
     eGUI <- GUI.init resourceDir'
 
-    case eitherThree (eSkyBox, eTerrain, eGUI) of
+    case eitherThree (eSkyDome, eTerrain, eGUI) of
 
-        Right (skyBox', terrain', gui') -> do
+        Right (skyDome', terrain', gui') -> do
 
             -- Install callbacks.
             install
@@ -46,7 +46,7 @@ setup options = do
                               , perspective = mkPerspective dimensions
                               , timeOfDay = Noon
                               , camera = Camera.init
-                              , skyBox = skyBox'
+                              , skyDome = skyDome'
                               , terrain = terrain'
                               , gui = gui'
                               , frameCount = 0
