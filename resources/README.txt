@@ -26,3 +26,8 @@ texture directory
 =================
 
 Textures used by piece-of-earth.
+
+models directory
+================
+
+Wavefront model files (.obj).

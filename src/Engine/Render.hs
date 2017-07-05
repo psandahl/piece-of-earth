@@ -12,7 +12,6 @@ module Engine.Render
 import           BigE.Runtime           (Render, getAppStateUnsafe)
 import           Control.Monad          (when)
 import           Control.Monad.IO.Class (MonadIO)
-import           Data.Bits              ((.|.))
 import           Engine.State           (State (..))
 import qualified Graphics.GL            as GL
 import qualified Graphics.GUI           as GUI
@@ -23,10 +22,10 @@ import           Graphics.Types         (UserInput (..))
 -- | The master rendering callback. Render one frame.
 render :: Render State ()
 render = do
-    GL.glClearColor 0 0 0.4 0
 
-    -- Clear the framebuffers.
-    GL.glClear (GL.GL_COLOR_BUFFER_BIT .|. GL.GL_DEPTH_BUFFER_BIT)
+    -- Clear the depth buffer. The color buffer not need to be cleared as
+    -- the sky initially will render all pixels.
+    GL.glClear GL.GL_DEPTH_BUFFER_BIT
 
     -- Render the skybox.
     renderSkyBox
@@ -40,8 +39,14 @@ render = do
 -- | Render the sky box.
 renderSkyBox :: Render State ()
 renderSkyBox = do
+
+    -- Render the sky without any depth information. Everything else rendered
+    -- after the sky will be visible in front of it.
     disableDepth
-    disableBackFaceCulling
+
+    -- As the sky is rendered inside a sphere model we would like to cull the
+    -- outside surface. I.e. the front faces of the model.
+    enableFrontFaceCulling
 
     state <- getAppStateUnsafe
     SkyBox.render $ skyBox state
@@ -81,6 +86,7 @@ enableBackFaceCulling = do
     GL.glEnable GL.GL_CULL_FACE
     GL.glCullFace GL.GL_BACK
 
-disableBackFaceCulling :: MonadIO m => m ()
-disableBackFaceCulling =
-    GL.glDisable GL.GL_CULL_FACE
+enableFrontFaceCulling :: MonadIO m => m ()
+enableFrontFaceCulling = do
+    GL.glEnable GL.GL_CULL_FACE
+    GL.glCullFace GL.GL_FRONT

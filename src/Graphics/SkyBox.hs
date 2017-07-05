@@ -11,20 +11,20 @@ module Graphics.SkyBox
     , delete
     ) where
 
-import           BigE.Attribute.Vert_P  (Vertex (..))
+import           BigE.Mesh              (Mesh)
 import qualified BigE.Mesh              as Mesh
+import qualified BigE.Model             as Model
 import qualified BigE.Program           as Program
 import           BigE.Runtime           (Render)
 import           BigE.Types             (BufferUsage (..), Primitive (..),
                                          Program, ShaderType (..), setUniform)
+import           BigE.Util              (eitherTwo)
 import           Control.Monad.IO.Class (MonadIO)
-import           Data.Vector.Storable   (Vector)
-import qualified Data.Vector.Storable   as Vector
 import           Engine.State           (State, getPerspectiveMatrix,
                                          getViewMatrix)
-import           Graphics.GL            (GLfloat, GLuint)
+import           Graphics.GL            (GLfloat)
 import           Graphics.Types         (SkyBox (..))
-import           Linear                 (M44, V3 (..), V4 (..), (!*!))
+import           Linear                 (M44, V4 (..), (!*!))
 import           Prelude                hiding (init)
 import           System.FilePath        ((</>))
 
@@ -32,11 +32,11 @@ import           System.FilePath        ((</>))
 init :: MonadIO m => FilePath -> m (Either String SkyBox)
 init resourceDir = do
     eProgram <- loadProgram resourceDir
+    eMesh <- loadMesh resourceDir
 
-    case eProgram of
-        Right program' -> do
+    case eitherTwo (eProgram, eMesh) of
+        Right (program', mesh') -> do
             vpMatrixLoc' <- Program.getUniformLocation program' "vpMatrix"
-            mesh' <- Mesh.fromVector StaticDraw skyBoxVertices skyBoxIndices
 
             return $ Right SkyBox
                 { program = program'
@@ -77,45 +77,17 @@ loadProgram resourceDir = do
                      , (FragmentShader, fragmentShader)
                      ]
 
--- | The sky box is 2, 2, 2 big. Origin is 0, 0, 0.
-skyBoxVertices :: Vector Vertex
-skyBoxVertices = Vector.fromList
-    [ -- Front upper right (0).
-      Vertex { position = V3 len len (-len) }
-      -- Front upper left (1).
-    , Vertex { position = V3 (-len) len (-len) }
-      -- Front lower left (2).
-    , Vertex { position = V3 (-len) (-len) (-len) }
-      -- Front lower right (3).
-    , Vertex { position = V3 len (-len) (-len) }
-      -- Back upper right (4).
-    , Vertex { position = V3 len len len }
-      -- Back upper left (5).
-    , Vertex { position = V3 (-len) len len }
-      -- Back lower left (6).
-    , Vertex { position = V3 (-len) (-len) len }
-      -- Back lower right (7).
-    , Vertex { position = V3 len (-len) len }
-    ]
-    where
-        len :: GLfloat
-        len = 1
+-- | Load the model used for 'SkyBox' mesh.
+loadMesh :: MonadIO m => FilePath -> m (Either String Mesh)
+loadMesh resourceDir = do
+    let modelFile = resourceDir </> "models" </> "sphere.obj"
 
-skyBoxIndices :: Vector GLuint
-skyBoxIndices = Vector.fromList
-    [ -- Front quad.
-      0, 1, 2, 0, 2, 3
-      -- Left quad.
-    , 1, 5, 6, 1, 6, 2
-      -- Right quad.
-    , 4, 0, 3, 4, 3, 7
-      -- Back quad.
-    , 5, 4, 7, 5, 7, 6
-      -- Top quad.
-    , 4, 5, 1, 4, 1, 0
-      -- Bottom quad.
-    , 3, 2, 6, 3, 6, 7
-    ]
+    eModelVectors <- Model.vertPFromFile modelFile
+    case eModelVectors of
+        Right (verts, indices) ->
+            Right <$> Mesh.fromVector StaticDraw verts indices
+
+        Left err -> return $ Left err
 
 removeTranslation :: M44 GLfloat -> M44 GLfloat
 removeTranslation (V4 (V4 x1 y1 z1 _)
