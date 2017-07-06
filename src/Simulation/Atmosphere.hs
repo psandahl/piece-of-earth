@@ -58,11 +58,18 @@ sunLight timeOfDay =
 
 -- | Give the sky gradient given the time of day.
 skyGradient :: TimeOfDay -> SkyGradient
-skyGradient _timeOfDay =
-    SkyGradient
-        { sky = V3 0 (5 / 255) (25 / 255)
-        , horizon = V3 (189 / 255) (213 / 255) (213 / 255)
-        }
+skyGradient timeOfDay =
+    case timeOfDay of
+        Sunrise ->
+            SkyGradient
+                { sky = V3 (67 / 255) (108 / 255) (198 / 255)
+                , horizon = V3 (202 / 255) (155 / 255) (63 / 255)
+                }
+        _ ->
+            SkyGradient
+                { sky = V3 0 (5 / 255) (25 / 255)
+                , horizon = V3 (189 / 255) (213 / 255) (213 / 255)
+                }
 
 -- | The distance to the sun. Just a model space distance far enough away so
 -- that its light direction, more or less, will be the same for all fragments.
