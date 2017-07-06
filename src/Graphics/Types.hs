@@ -90,6 +90,12 @@ data SkyDome = SkyDome
     , vpMatrixLoc :: !Location
       -- ^ VP matrix location.
 
+    , horizonLoc  :: !Location
+      -- ^ Horizon color location.
+
+    , skyLoc      :: !Location
+      -- ^ Sky color location.
+
     , mesh        :: !Mesh
       -- ^ The mesh.
     } deriving Show

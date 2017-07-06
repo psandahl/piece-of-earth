@@ -9,8 +9,10 @@
 -- Very simple - non physics based - simulation of the atmosphere.
 module Simulation.Atmosphere
     ( TimeOfDay (..)
+    , SkyGradient (..)
     , ambientLight
     , sunLight
+    , skyGradient
     ) where
 
 import           BigE.Math                    (mkRotate33, toRadians)
@@ -32,6 +34,12 @@ data TimeOfDay
     | Night
     deriving Show
 
+-- | Colors for a sky gradient.
+data SkyGradient = SkyGradient
+    { sky     :: !(V3 GLfloat)
+    , horizon :: !(V3 GLfloat)
+    } deriving Show
+
 -- | Give the ambient light given the time of day.
 ambientLight :: TimeOfDay -> AmbientLight
 ambientLight timeOfDay =
@@ -46,6 +54,14 @@ sunLight timeOfDay =
     LightEmitter
         { LightEmitter.position = rotatedSun (sunAngle timeOfDay) ^* distanceToTheSun
         , LightEmitter.color = lightColor timeOfDay
+        }
+
+-- | Give the sky gradient given the time of day.
+skyGradient :: TimeOfDay -> SkyGradient
+skyGradient _timeOfDay =
+    SkyGradient
+        { sky = V3 0 (5 / 255) (25 / 255)
+        , horizon = V3 (189 / 255) (213 / 255) (213 / 255)
         }
 
 -- | The distance to the sun. Just a model space distance far enough away so

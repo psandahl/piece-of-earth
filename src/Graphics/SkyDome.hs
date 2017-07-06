@@ -21,11 +21,12 @@ import           BigE.Types             (BufferUsage (..), Primitive (..),
 import           BigE.Util              (eitherTwo)
 import           Control.Monad.IO.Class (MonadIO)
 import           Engine.State           (State, getPerspectiveMatrix,
-                                         getViewMatrix)
+                                         getTimeOfDay, getViewMatrix)
 import           Graphics.GL            (GLfloat)
 import           Graphics.Types         (SkyDome (..))
 import           Linear                 (M44, V4 (..), (!*!))
 import           Prelude                hiding (init)
+import           Simulation.Atmosphere  (SkyGradient (..), skyGradient)
 import           System.FilePath        ((</>))
 
 -- | Initialize the sky dome given the path to the resource base directory.
@@ -37,10 +38,14 @@ init resourceDir = do
     case eitherTwo (eProgram, eMesh) of
         Right (program', mesh') -> do
             vpMatrixLoc' <- Program.getUniformLocation program' "vpMatrix"
+            horizonLoc' <- Program.getUniformLocation program' "horizon"
+            skyLoc' <- Program.getUniformLocation program' "sky"
 
             return $ Right SkyDome
                 { program = program'
                 , vpMatrixLoc = vpMatrixLoc'
+                , horizonLoc = horizonLoc'
+                , skyLoc = skyLoc'
                 , mesh = mesh'
                 }
 
@@ -55,6 +60,10 @@ render skyDome = do
     pMatrix <- getPerspectiveMatrix
     vMatrix <- removeTranslation <$> getViewMatrix
     setUniform (vpMatrixLoc skyDome) $ pMatrix !*! vMatrix
+
+    skyGradients <- skyGradient <$> getTimeOfDay
+    setUniform (horizonLoc skyDome) $ horizon skyGradients
+    setUniform (skyLoc skyDome) $ sky skyGradients
 
     -- Render stuff.
     Mesh.enable $ mesh skyDome
