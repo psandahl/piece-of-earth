@@ -24,6 +24,7 @@ executable piece-ef-earth
                        Engine.State
                        Engine.Teardown
                        Graphics.Camera
+                       Graphics.Fog
                        Graphics.GUI
                        Graphics.SkyDome
                        Graphics.Terrain

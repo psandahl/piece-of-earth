@@ -13,10 +13,12 @@ module Simulation.Atmosphere
     , ambientLight
     , sunLight
     , skyGradient
-    , fogColor
+    , fog
     ) where
 
 import           BigE.Math                    (mkRotate33, toRadians)
+import           Graphics.Fog                 (Fog (..))
+import qualified Graphics.Fog                 as Fog
 import           Graphics.GL                  (GLfloat)
 import           Graphics.Lights.AmbientLight (AmbientLight (..))
 import qualified Graphics.Lights.AmbientLight as AmbientLight
@@ -96,9 +98,12 @@ skyGradient timeOfDay =
                 , horizon = V3 (12 / 255) (35 / 255) (87 / 255)
                 }
 
--- | Fog color. Not dependent on time of day.
-fogColor :: V3 GLfloat
-fogColor = V3 0.5 0.5 0.5
+-- | Fog. Not dependent on time of day.
+fog :: Fog
+fog = Fog  { Fog.color = V3 0.5 0.5 0.5
+           , Fog.fogStart = 0
+           , Fog.fogEnd = 1000
+           }
 
 -- | The distance to the sun. Just a model space distance far enough away so
 -- that its light direction, more or less, will be the same for all fragments.

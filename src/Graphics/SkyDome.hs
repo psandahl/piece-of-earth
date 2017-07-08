@@ -22,12 +22,12 @@ import           BigE.Util              (eitherTwo)
 import           Control.Monad.IO.Class (MonadIO)
 import           Engine.State           (State, getPerspectiveMatrix,
                                          getTimeOfDay, getViewMatrix)
+import           Graphics.Fog           (Fog (..))
 import           Graphics.GL            (GLfloat)
 import           Graphics.Types         (SkyDome (..))
 import           Linear                 (M44, V4 (..), (!*!))
 import           Prelude                hiding (init)
-import           Simulation.Atmosphere  (SkyGradient (..), fogColor,
-                                         skyGradient)
+import           Simulation.Atmosphere  (SkyGradient (..), fog, skyGradient)
 import           System.FilePath        ((</>))
 
 -- | Initialize the sky dome given the path to the resource base directory.
@@ -67,7 +67,7 @@ render skyDome = do
     skyGradients <- skyGradient <$> getTimeOfDay
     setUniform (horizonLoc skyDome) $ horizon skyGradients
     setUniform (skyLoc skyDome) $ sky skyGradients
-    setUniform (fogColorLoc skyDome) fogColor
+    setUniform (fogColorLoc skyDome) $ color fog
 
     -- Render stuff.
     Mesh.enable $ mesh skyDome

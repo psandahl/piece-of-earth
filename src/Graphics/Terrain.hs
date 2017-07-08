@@ -30,9 +30,9 @@ import           BigE.Types                   (BufferUsage (..), Primitive (..),
                                                Texture, setUniform)
 import           BigE.Util                    (eitherThree, eitherTwo)
 import           Control.Monad.IO.Class       (MonadIO)
---import           Data.Vector                  (fromList)
 import           Engine.State                 (State, getPerspectiveMatrix,
                                                getTimeOfDay, getViewMatrix)
+import           Graphics.Fog                 (getFogLoc, setFog)
 import           Graphics.GL                  (GLfloat, GLint)
 import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
                                                setAmbientLight)
@@ -41,7 +41,7 @@ import           Graphics.Lights.LightEmitter (getLightEmitterLoc,
 import           Graphics.Types               (Terrain (..))
 import           Linear                       (identity, (!*!))
 import           Prelude                      hiding (init)
-import           Simulation.Atmosphere        (ambientLight, sunLight)
+import           Simulation.Atmosphere        (ambientLight, fog, sunLight)
 import           System.FilePath              ((</>))
 
 -- | Initialize the terrain given the path to the resource base directory.
@@ -65,7 +65,7 @@ init resourceDir = do
             groundTextureLoc' <- Program.getUniformLocation program' "groundTexture"
             ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
             sunLightLoc' <- getLightEmitterLoc program' "sunLight"
-            --(terrainGrid', mesh') <- dummyMesh
+            fogLoc' <- getFogLoc program' "fog"
 
             return $
                 Right Terrain { program = program'
@@ -76,6 +76,7 @@ init resourceDir = do
                               , groundTextureLoc = groundTextureLoc'
                               , ambientLightLoc = ambientLightLoc'
                               , sunLightLoc = sunLightLoc'
+                              , fogLoc = fogLoc'
                               , terrainGrid = terrainGrid'
                               , groundTexture = groundTexture'
                               , mesh = mesh'
@@ -108,6 +109,7 @@ render terrain = do
     timeOfDay <- getTimeOfDay
     setAmbientLight (ambientLightLoc terrain) $ ambientLight timeOfDay
     setLightEmitter (sunLightLoc terrain) $ sunLight timeOfDay
+    setFog (fogLoc terrain) fog
 
     -- Render stuff.
     Mesh.enable $ mesh terrain

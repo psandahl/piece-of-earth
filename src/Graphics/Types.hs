@@ -25,6 +25,7 @@ import           BigE.TextRenderer            (RenderParams, TextRenderer)
 import           BigE.TextRenderer.Font       (Font)
 import           BigE.TextRenderer.Text       (Text)
 import           BigE.Types                   (Location, Program, Texture)
+import           Graphics.Fog                 (FogLoc)
 import           Graphics.GL                  (GLfloat)
 import           Graphics.Lights.AmbientLight (AmbientLightLoc)
 import           Graphics.Lights.LightEmitter (LightEmitterLoc)
@@ -71,6 +72,9 @@ data Terrain = Terrain
 
     , sunLightLoc      :: !LightEmitterLoc
       -- ^ Locations for the sun light.
+
+    , fogLoc           :: !FogLoc
+      -- ^ Locations for the fog.
 
     , terrainGrid      :: !TerrainGrid
       -- ^ The terrain's grid.

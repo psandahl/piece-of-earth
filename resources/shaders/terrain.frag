@@ -15,6 +15,14 @@ struct LightEmitter
   vec3 color;
 };
 
+// Fog.
+struct Fog
+{
+  vec3 color;
+  float fogStart;
+  float fogEnd;
+};
+
 // Interpolated vertex attributes.
 in vec3 vPosition;
 in vec3 vNormal;
@@ -33,11 +41,11 @@ uniform AmbientLight ambientLight;
 // The sun light.
 uniform LightEmitter sunLight;
 
+// The fog.
+uniform Fog fog;
+
 // Mandatory output; the color for the fragment.
 out vec4 color;
-
-// Hardcoded fog color.
-vec3 fogColor = vec3(0.5, 0.5, 0.5);
 
 vec3 baseColor();
 vec3 calcAmbientLight();
@@ -47,7 +55,7 @@ float linearFogFactor();
 void main()
 {
   vec3 fragmentColor = baseColor() * (calcAmbientLight() + calcSunLight());
-  vec3 mixedWithFog = mix(fragmentColor, fogColor, linearFogFactor());
+  vec3 mixedWithFog = mix(fragmentColor, fog.color, linearFogFactor());
   color = vec4(mixedWithFog, 1.0);
 }
 
@@ -79,26 +87,24 @@ vec3 calcSunLight()
   return sunLight.color * diffuse;
 }
 
+// Calculate the mix factor for the fog.
 float linearFogFactor()
 {
   // The fog coordinate given the eye position at 0, 0, 0.
-  float fogCoordinate = abs(distance(vec3(0), vPosition));
+  float fogCoord = abs(distance(vec3(0), vPosition));
 
-  float fogStart = 0;
-  float fogEnd = 1000;
-  float fogDistance = fogEnd - fogStart;
-
-  if (fogCoordinate < fogStart)
+  if (fogCoord < fog.fogStart)
   {
     return 0.0;
   }
-  else if (fogCoordinate > fogEnd)
+  else if (fogCoord > fog.fogEnd)
   {
     return 1.0;
   }
   else
   {
-    float relativeCoord = fogCoordinate - fogStart;
-    return smoothstep(0, fogDistance, relativeCoord);
+    float fogDistance = fog.fogEnd - fog.fogStart;
+    float normalizedFogCoord = fogCoord - fog.fogStart;
+    return smoothstep(0, fogDistance, normalizedFogCoord);
   }
 }
