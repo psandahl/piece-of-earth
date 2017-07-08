@@ -8,10 +8,11 @@ in vec3 vPosition;
 uniform vec3 horizon;
 uniform vec3 sky;
 
+// Fog color uniform.
+uniform vec3 fogColor;
+
 // The fragment's color.
 out vec4 color;
-
-vec3 fogColor = vec3(0.5, 0.5, 0.5);
 
 void main()
 {

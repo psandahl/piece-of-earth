@@ -96,6 +96,9 @@ data SkyDome = SkyDome
     , skyLoc      :: !Location
       -- ^ Sky color location.
 
+    , fogColorLoc :: !Location
+      -- ^ Fog color location.
+
     , mesh        :: !Mesh
       -- ^ The mesh.
     } deriving Show

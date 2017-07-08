@@ -26,7 +26,8 @@ import           Graphics.GL            (GLfloat)
 import           Graphics.Types         (SkyDome (..))
 import           Linear                 (M44, V4 (..), (!*!))
 import           Prelude                hiding (init)
-import           Simulation.Atmosphere  (SkyGradient (..), skyGradient)
+import           Simulation.Atmosphere  (SkyGradient (..), fogColor,
+                                         skyGradient)
 import           System.FilePath        ((</>))
 
 -- | Initialize the sky dome given the path to the resource base directory.
@@ -40,12 +41,14 @@ init resourceDir = do
             vpMatrixLoc' <- Program.getUniformLocation program' "vpMatrix"
             horizonLoc' <- Program.getUniformLocation program' "horizon"
             skyLoc' <- Program.getUniformLocation program' "sky"
+            fogColorLoc' <- Program.getUniformLocation program' "fogColor"
 
             return $ Right SkyDome
                 { program = program'
                 , vpMatrixLoc = vpMatrixLoc'
                 , horizonLoc = horizonLoc'
                 , skyLoc = skyLoc'
+                , fogColorLoc = fogColorLoc'
                 , mesh = mesh'
                 }
 
@@ -64,6 +67,7 @@ render skyDome = do
     skyGradients <- skyGradient <$> getTimeOfDay
     setUniform (horizonLoc skyDome) $ horizon skyGradients
     setUniform (skyLoc skyDome) $ sky skyGradients
+    setUniform (fogColorLoc skyDome) fogColor
 
     -- Render stuff.
     Mesh.enable $ mesh skyDome
