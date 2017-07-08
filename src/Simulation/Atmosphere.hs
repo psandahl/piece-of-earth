@@ -135,10 +135,10 @@ sunrise :: V3 GLfloat
 sunrise = V3 (182 / 255) (126 / 255) (91 / 255)
 
 noon :: V3 GLfloat
-noon = V3 (192 / 255) (191 / 255) (173 / 255)
+noon = V3 (175 / 255) (175 / 255) (175 / 255)
 
 sunset :: V3 GLfloat
 sunset = sunrise
 
 night :: V3 GLfloat
-night = V3 (30 / 255) (30 / 255) (100 / 255)
+night = V3 (40 / 255) (40 / 255) (60 / 255)
