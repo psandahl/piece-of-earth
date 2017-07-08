@@ -36,14 +36,19 @@ uniform LightEmitter sunLight;
 // Mandatory output; the color for the fragment.
 out vec4 color;
 
+// Hardcoded fog color.
+vec3 fogColor = vec3(0.5, 0.5, 0.5);
+
 vec3 baseColor();
 vec3 calcAmbientLight();
 vec3 calcSunLight();
+float linearFogFactor();
 
 void main()
 {
   vec3 fragmentColor = baseColor() * (calcAmbientLight() + calcSunLight());
-  color = vec4(fragmentColor, 1);
+  vec3 mixedWithFog = mix(fragmentColor, fogColor, linearFogFactor());
+  color = vec4(mixedWithFog, 1.0);
 }
 
 // Calculate the base color from the color map and the vertex' color. I.e. the
@@ -72,4 +77,28 @@ vec3 calcSunLight()
   float diffuse = max(dot(normal, -direction), 0);
 
   return sunLight.color * diffuse;
+}
+
+float linearFogFactor()
+{
+  // The fog coordinate given the eye position at 0, 0, 0.
+  float fogCoordinate = abs(distance(vec3(0), vPosition));
+
+  float fogStart = 0;
+  float fogEnd = 1000;
+  float fogDistance = fogEnd - fogStart;
+
+  if (fogCoordinate < fogStart)
+  {
+    return 0.0;
+  }
+  else if (fogCoordinate > fogEnd)
+  {
+    return 1.0;
+  }
+  else
+  {
+    float relativeCoord = fogCoordinate - fogStart;
+    return smoothstep(0, fogDistance, relativeCoord);
+  }
 }
