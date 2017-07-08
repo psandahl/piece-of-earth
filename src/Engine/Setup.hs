@@ -44,7 +44,7 @@ setup options = do
             -- Create the 'State' record.
             let state = State { resourceDir = resourceDir'
                               , perspective = mkPerspective dimensions
-                              , timeOfDay = Noon
+                              , timeOfDay = Morning
                               , camera = Camera.init
                               , skyDome = skyDome'
                               , terrain = terrain'
