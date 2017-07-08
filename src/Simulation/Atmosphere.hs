@@ -60,15 +60,39 @@ sunLight timeOfDay =
 skyGradient :: TimeOfDay -> SkyGradient
 skyGradient timeOfDay =
     case timeOfDay of
-        Sunrise ->
+        Sunrise   -> sunriseSky
+        Morning   -> morningSky
+        Noon      -> daylightSky
+        Afternoon -> morningSky
+        Sunset    -> sunriseSky
+        Night     -> nightSky
+    where
+        sunriseSky :: SkyGradient
+        sunriseSky =
             SkyGradient
-                { sky = V3 (67 / 255) (108 / 255) (198 / 255)
-                , horizon = V3 (202 / 255) (155 / 255) (63 / 255)
+                { sky = V3 (70 / 255) (106 / 255) (200 / 255)
+                , horizon = V3 (246 / 255) (176 / 255) (133 / 255)
                 }
-        _ ->
+
+        morningSky :: SkyGradient
+        morningSky =
             SkyGradient
                 { sky = V3 0 (5 / 255) (25 / 255)
-                , horizon = V3 (189 / 255) (213 / 255) (213 / 255)
+                , horizon = V3 (71 / 255) (118 / 255) (172 / 255)
+                }
+
+        daylightSky :: SkyGradient
+        daylightSky =
+            SkyGradient
+                { sky = V3 (12 / 255) (94 / 255) (170 / 255)
+                , horizon = V3 (170 / 255) (204 / 255) (204 / 255)
+                }
+
+        nightSky :: SkyGradient
+        nightSky =
+            SkyGradient
+                { sky = V3 0 (5 / 255) (25 / 255)
+                , horizon = V3 (12 / 255) (35 / 255) (87 / 255)
                 }
 
 -- | The distance to the sun. Just a model space distance far enough away so
