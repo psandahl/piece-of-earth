@@ -15,10 +15,15 @@ module Graphics.TerrainSocket
     ) where
 
 import qualified BigE.Attribute.Vert_P_N_Tx as Vert_P_N_Tx
+import qualified BigE.Mesh                  as Mesh
 import           BigE.Runtime               (Render)
-import           BigE.TerrainGrid           (TerrainGrid, lookup)
-import           Control.Monad.IO.Class     (MonadIO, liftIO)
+import           BigE.TerrainGrid           (TerrainGrid, lookup, quadGridSize,
+                                             verticeGridSize)
+import           BigE.Types                 (BufferUsage (..))
+import           Control.Monad.IO.Class     (MonadIO)
+import qualified Data.Vector.Storable       as Vector
 import           Engine.State               (State)
+import           Graphics.GL                (GLuint)
 import           Graphics.Types             (TerrainSocket (..))
 import           Linear                     (V2 (..), V3 (..))
 import           Prelude                    hiding (init)
@@ -27,16 +32,17 @@ import           Prelude                    hiding (init)
 -- the base resource directory.
 init :: MonadIO m => TerrainGrid -> FilePath -> m (Either String TerrainSocket)
 init terrainGrid _ = do
-    --let (x, z) = verticeGridSize terrainGrid
-    --liftIO $ putStrLn $ "X: " ++ show x
-    --liftIO $ putStrLn $ "Z: " ++ show z
-    let ww = mkWestSocketWall terrainGrid 3
-    liftIO $ print ww
-    return $ Right TerrainSocket { dummy = 1 }
+    let (_, z) = verticeGridSize terrainGrid
+        (_, quads) = quadGridSize terrainGrid
+        ww = mkWestSocketWall terrainGrid z
+        is = indices quads
+    mesh' <- Mesh.fromVector StaticDraw (Vector.fromList ww) (Vector.fromList is)
+    return $ Right TerrainSocket { mesh = mesh' }
 
 -- | Delete the 'TerrainSocket's resources.
 delete :: TerrainSocket -> Render State ()
-delete _ = return ()
+delete terrainSocket =
+    Mesh.delete $ mesh terrainSocket
 
 -- OMFG so ugly. Make it work. Make it beautiful.
 mkWestSocketWall :: TerrainGrid -> Int -> [Vert_P_N_Tx.Vertex]
@@ -67,3 +73,13 @@ mkWestSocketWall terrainGrid num = reverse $ go [] 0
                                                , Vert_P_N_Tx.texCoord = V2 1 0
                                                }
                 in go (lower:upper:xs) (idx + 1)
+
+indices :: Int -> [GLuint]
+indices quads = concatMap mkQuadIndices [0 .. quads - 1]
+    where
+        mkQuadIndices :: Int -> [GLuint]
+        mkQuadIndices quad =
+            let baseIndex = fromIntegral $ quad * 2 + 2
+            in [ baseIndex, baseIndex - 2, baseIndex - 1
+               , baseIndex, baseIndex - 1, baseIndex + 1
+               ]

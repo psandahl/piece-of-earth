@@ -87,6 +87,7 @@ init resourceDir = do
 delete :: Terrain -> Render State ()
 delete terrain = do
     Program.delete $ program terrain
+    Mesh.delete $ mesh terrain
     Texture.delete $ groundTexture terrain
 
 -- | Render all terrain.

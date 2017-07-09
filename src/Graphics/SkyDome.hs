@@ -79,7 +79,9 @@ render skyDome = do
 
 -- | Delete the 'SkyDome' resources.
 delete :: SkyDome -> Render State ()
-delete = Program.delete . program
+delete skyDome = do
+    Program.delete $ program skyDome
+    Mesh.delete $ mesh skyDome
 
 -- | Load the program used for 'SkyDome' rendering.
 loadProgram :: MonadIO m => FilePath -> m (Either String Program)

@@ -89,7 +89,7 @@ data Terrain = Terrain
 
 -- | TerrainSocket record.
 data TerrainSocket = TerrainSocket
-    { dummy :: !Int
+    { mesh :: !Mesh
     } deriving Show
 
 -- | SkyDome record.
