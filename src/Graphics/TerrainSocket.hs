@@ -12,37 +12,92 @@
 module Graphics.TerrainSocket
     ( init
     , delete
+    , render
     ) where
 
 import qualified BigE.Attribute.Vert_P_N_Tx as Vert_P_N_Tx
+import           BigE.Mesh                  (Mesh)
 import qualified BigE.Mesh                  as Mesh
+import qualified BigE.Program               as Program
 import           BigE.Runtime               (Render)
 import           BigE.TerrainGrid           (TerrainGrid, lookup, quadGridSize,
                                              verticeGridSize)
-import           BigE.Types                 (BufferUsage (..))
+import           BigE.Types                 (BufferUsage (..), Primitive (..),
+                                             Program, ShaderType (..),
+                                             setUniform)
 import           Control.Monad.IO.Class     (MonadIO)
 import qualified Data.Vector.Storable       as Vector
-import           Engine.State               (State)
+import           Engine.State               (State, getPerspectiveMatrix,
+                                             getViewMatrix)
 import           Graphics.GL                (GLuint)
 import           Graphics.Types             (TerrainSocket (..))
-import           Linear                     (V2 (..), V3 (..))
+import           Linear                     (V2 (..), V3 (..), identity, (!*!))
 import           Prelude                    hiding (init)
+import           System.FilePath            ((</>))
 
 -- | Initialize the 'TerrainSocket' from a 'TerrainGrid' and the path to
 -- the base resource directory.
 init :: MonadIO m => TerrainGrid -> FilePath -> m (Either String TerrainSocket)
-init terrainGrid _ = do
+init terrainGrid resourceDir = do
+    eProgram <- loadProgram resourceDir
+
+    case eProgram of
+        Right program' -> do
+
+            mesh' <- loadMesh terrainGrid
+            mvpMatrixLoc' <- Program.getUniformLocation program' "mvpMatrix"
+
+            return $
+                Right TerrainSocket
+                    { program = program'
+                    , modelMatrix = identity
+                    , mvpMatrixLoc = mvpMatrixLoc'
+                    , mesh = mesh'
+                    }
+
+        Left err -> return $ Left err
+
+-- | Delete the 'TerrainSocket's resources.
+delete :: TerrainSocket -> Render State ()
+delete terrainSocket = do
+    Program.delete $ program terrainSocket
+    Mesh.delete $ mesh terrainSocket
+
+-- | Render the 'TerrainSocket'.
+render :: TerrainSocket -> Render State ()
+render terrainSocket = do
+    Program.enable $ program terrainSocket
+
+    -- Setting uniforms.
+    pMatrix <- getPerspectiveMatrix
+    vMatrix <- getViewMatrix
+    let mvp = pMatrix !*! vMatrix !*! modelMatrix terrainSocket
+    setUniform (mvpMatrixLoc terrainSocket) mvp
+
+    -- Render stuff.
+    Mesh.enable $ mesh terrainSocket
+    Mesh.render Triangles $ mesh terrainSocket
+
+    -- Clean up.
+    Program.disable
+
+-- | Load the mesh for 'TerrainGrid'.
+loadMesh :: MonadIO m => TerrainGrid -> m Mesh
+loadMesh terrainGrid = do
     let (_, z) = verticeGridSize terrainGrid
         (_, quads) = quadGridSize terrainGrid
         ww = mkWestSocketWall terrainGrid z
         is = indices quads
-    mesh' <- Mesh.fromVector StaticDraw (Vector.fromList ww) (Vector.fromList is)
-    return $ Right TerrainSocket { mesh = mesh' }
+    Mesh.fromVector StaticDraw (Vector.fromList ww) (Vector.fromList is)
 
--- | Delete the 'TerrainSocket's resources.
-delete :: TerrainSocket -> Render State ()
-delete terrainSocket =
-    Mesh.delete $ mesh terrainSocket
+-- | Load the program used for terrain socket rendering.
+loadProgram :: MonadIO m => FilePath -> m (Either String Program)
+loadProgram resourceDir = do
+    let vertexShader = resourceDir </> "shaders" </> "terrainSocket.vert"
+        fragmentShader = resourceDir </> "shaders" </> "terrainSocket.frag"
+    Program.fromFile [ (VertexShader, vertexShader)
+                     , (FragmentShader, fragmentShader)
+                     ]
 
 -- OMFG so ugly. Make it work. Make it beautiful.
 mkWestSocketWall :: TerrainGrid -> Int -> [Vert_P_N_Tx.Vertex]

@@ -89,7 +89,17 @@ data Terrain = Terrain
 
 -- | TerrainSocket record.
 data TerrainSocket = TerrainSocket
-    { mesh :: !Mesh
+    { program      :: !Program
+      -- ^ The shader program used for rendering of terrain socket.
+
+    , modelMatrix  :: !(M44 GLfloat)
+      -- ^ The model matrix.
+
+    , mvpMatrixLoc :: !Location
+      -- ^ The location of the mvp matrix.
+
+    , mesh         :: !Mesh
+      -- ^ The mesh.
     } deriving Show
 
 -- | SkyDome record.

@@ -17,6 +17,7 @@ import qualified Graphics.GL            as GL
 import qualified Graphics.GUI           as GUI
 import qualified Graphics.SkyDome       as SkyDome
 import qualified Graphics.Terrain       as Terrain
+import qualified Graphics.TerrainSocket as TerrainSocket
 import           Graphics.Types         (UserInput (..))
 
 -- | The master rendering callback. Render one frame.
@@ -65,6 +66,9 @@ renderWorld = do
 
     -- Render the terrain.
     Terrain.render $ terrain state
+
+    -- Render the terrain socket.
+    TerrainSocket.render $ terrainSocket state
 
     when (renderWireframe userInp) $
         GL.glPolygonMode GL.GL_FRONT_AND_BACK GL.GL_FILL
