@@ -12,6 +12,7 @@
 module Graphics.Types
     ( Camera (..)
     , Terrain (..)
+    , TerrainSocket (..)
     , GUI (..)
     , SkyDome (..)
     , TextEntity (..)
@@ -84,6 +85,11 @@ data Terrain = Terrain
 
     , mesh             :: !Mesh
       -- ^ The mesh.
+    } deriving Show
+
+-- | TerrainSocket record.
+data TerrainSocket = TerrainSocket
+    { dummy :: !Int
     } deriving Show
 
 -- | SkyDome record.

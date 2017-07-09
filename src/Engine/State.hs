@@ -19,43 +19,46 @@ import           BigE.Runtime          (Render, getAppStateUnsafe,
                                         modifyAppState)
 import           Graphics.GL           (GLfloat)
 import           Graphics.Types        (Camera (viewMatrix), GUI, SkyDome,
-                                        Terrain, UserInput)
+                                        Terrain, TerrainSocket, UserInput)
 import           Linear                (M44)
 import           Simulation.Atmosphere (TimeOfDay)
 
 -- | The state of the application. It will be carried by the runtime IORef
 -- variable.
 data State = State
-    { resourceDir :: !FilePath
+    { resourceDir   :: !FilePath
       -- ^ The base directory for all external resource files.
 
-    , perspective :: !(M44 GLfloat)
+    , perspective   :: !(M44 GLfloat)
       -- ^ The perspective matrix for the application. Will be updated when
       -- the screen resolution change.
 
-    , timeOfDay   :: !TimeOfDay
+    , timeOfDay     :: !TimeOfDay
       -- ^ The current time of day.
 
-    , camera      :: !Camera
+    , camera        :: !Camera
       -- ^ The application's camera.
 
-    , skyDome     :: !SkyDome
+    , skyDome       :: !SkyDome
       -- ^ The application's sky dome.
 
-    , terrain     :: !Terrain
+    , terrain       :: !Terrain
       -- ^ The application's container holding all terrain.
 
-    , gui         :: !GUI
+    , terrainSocket :: !TerrainSocket
+      -- ^ The enclosing socket for the terrain.
+
+    , gui           :: !GUI
       -- ^ The application's GUI.
 
-    , frameCount  :: !Int
+    , frameCount    :: !Int
       -- ^ The current frame number.
 
-    , frameRate   :: !Double
+    , frameRate     :: !Double
       -- ^ The current frame rate. Will only change if it's differ significantly
       -- from last frame's measured rate.
 
-    , userInput   :: !UserInput
+    , userInput     :: !UserInput
       -- ^ The user input valid for the frame.
     } deriving Show
 

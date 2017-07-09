@@ -28,6 +28,7 @@ executable piece-ef-earth
                        Graphics.GUI
                        Graphics.SkyDome
                        Graphics.Terrain
+                       Graphics.TerrainSocket
                        Graphics.Types
                        Graphics.Lights.AmbientLight
                        Graphics.Lights.LightEmitter
