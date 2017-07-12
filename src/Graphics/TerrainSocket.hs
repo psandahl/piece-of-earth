@@ -85,10 +85,13 @@ render terrainSocket = do
 loadMesh :: MonadIO m => TerrainGrid -> m Mesh
 loadMesh terrainGrid = do
     let (_, z) = TerrainGrid.verticeGridSize terrainGrid
-        (_, quads) = TerrainGrid.quadGridSize terrainGrid
-        ww = mkSocketWall terrainGrid z (V3 (-1) 0 0) westWallTraverse
-        is = indices quads
-    Mesh.fromVector StaticDraw (Vector.fromList ww) (Vector.fromList is)
+        walls = [ mkSocketWall terrainGrid z (V3 (-1) 0 0) westWallTraverse
+                , mkSocketWall terrainGrid z (V3 0 0 1) southWallTraversal
+                , mkSocketWall terrainGrid z (V3 1 0 0) eastWallTraversal
+                , mkSocketWall terrainGrid z (V3 0 0 (-1)) northWallTraversal
+                ]
+        is = indices (z * 4)
+    Mesh.fromVector StaticDraw (Vector.fromList $ concat walls) (Vector.fromList is)
 
 -- | Load the program used for terrain socket rendering.
 loadProgram :: MonadIO m => FilePath -> m (Either String Program)
@@ -114,9 +117,21 @@ mkSocketWall terrainGrid verts normal trav = reverse $ go [] 0
                     (upper, lower) = mkVertexPair pos idx normal
                 in go (lower:upper:xs) (idx + 1)
 
--- | West wall traversal. Always at x = 0, z = idx.
+-- | West wall traversal. x = 0, z = idx.
 westWallTraverse :: WallTraverse
 westWallTraverse _verts idx = (0, idx)
+
+-- | South wall traversal. x = idx, z = verts - 1.
+southWallTraversal :: WallTraverse
+southWallTraversal verts idx = (idx, verts - 1)
+
+-- | East wall traversal. x = verts - 1. z = verts - 1 - idx.
+eastWallTraversal :: WallTraverse
+eastWallTraversal verts idx = (verts - 1, verts - 1 - idx)
+
+-- | North wall traversal. x = verts - 1 - idx, z = 0.
+northWallTraversal :: WallTraverse
+northWallTraversal verts idx = (verts - 1 - idx, 0)
 
 -- | Given the (vertex) index make two vertices. One at the same height as
 -- the position and one at height zero.
