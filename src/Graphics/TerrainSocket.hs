@@ -20,8 +20,8 @@ import           BigE.Mesh                  (Mesh)
 import qualified BigE.Mesh                  as Mesh
 import qualified BigE.Program               as Program
 import           BigE.Runtime               (Render)
-import           BigE.TerrainGrid           (TerrainGrid, lookup, quadGridSize,
-                                             verticeGridSize)
+import           BigE.TerrainGrid           (TerrainGrid)
+import qualified BigE.TerrainGrid           as TerrainGrid
 import           BigE.Types                 (BufferUsage (..), Primitive (..),
                                              Program, ShaderType (..),
                                              setUniform)
@@ -29,7 +29,7 @@ import           Control.Monad.IO.Class     (MonadIO)
 import qualified Data.Vector.Storable       as Vector
 import           Engine.State               (State, getPerspectiveMatrix,
                                              getViewMatrix)
-import           Graphics.GL                (GLuint)
+import           Graphics.GL                (GLfloat, GLuint)
 import           Graphics.Types             (TerrainSocket (..))
 import           Linear                     (V2 (..), V3 (..), identity, (!*!))
 import           Prelude                    hiding (init)
@@ -84,9 +84,9 @@ render terrainSocket = do
 -- | Load the mesh for 'TerrainGrid'.
 loadMesh :: MonadIO m => TerrainGrid -> m Mesh
 loadMesh terrainGrid = do
-    let (_, z) = verticeGridSize terrainGrid
-        (_, quads) = quadGridSize terrainGrid
-        ww = mkWestSocketWall terrainGrid z
+    let (_, z) = TerrainGrid.verticeGridSize terrainGrid
+        (_, quads) = TerrainGrid.quadGridSize terrainGrid
+        ww = mkSocketWall terrainGrid z (V3 (-1) 0 0) westWallTraverse
         is = indices quads
     Mesh.fromVector StaticDraw (Vector.fromList ww) (Vector.fromList is)
 
@@ -99,36 +99,52 @@ loadProgram resourceDir = do
                      , (FragmentShader, fragmentShader)
                      ]
 
--- OMFG so ugly. Make it work. Make it beautiful.
-mkWestSocketWall :: TerrainGrid -> Int -> [Vert_P_N_Tx.Vertex]
-mkWestSocketWall terrainGrid num = reverse $ go [] 0
+type WallTraverse = Int -> Int -> (Int, Int)
+
+-- | Make a socket wall of the given size, using the provided normal and
+-- the given traversal.
+mkSocketWall :: TerrainGrid -> Int -> V3 GLfloat -> WallTraverse -> [Vert_P_N_Tx.Vertex]
+mkSocketWall terrainGrid verts normal trav = reverse $ go [] 0
     where
         go :: [Vert_P_N_Tx.Vertex] -> Int -> [Vert_P_N_Tx.Vertex]
         go xs idx
-            | idx >= (num - 1) = xs
-            | even idx =
-                let V3 x y z = BigE.TerrainGrid.lookup (0, idx) terrainGrid
-                    upper = Vert_P_N_Tx.Vertex { Vert_P_N_Tx.position = V3 x y z
-                                               , Vert_P_N_Tx.normal = V3 (-1) 0 0
-                                               , Vert_P_N_Tx.texCoord = V2 0 1
-                                               }
-                    lower = Vert_P_N_Tx.Vertex { Vert_P_N_Tx.position = V3 x 0 z
-                                               , Vert_P_N_Tx.normal = V3 (-1) 0 0
-                                               , Vert_P_N_Tx.texCoord = V2 0 0
-                                               }
-                in go (lower:upper:xs) (idx + 1)
+            | idx >= verts = xs -- Traversal done.
             | otherwise =
-                let V3 x y z = BigE.TerrainGrid.lookup (0, idx) terrainGrid
-                    upper = Vert_P_N_Tx.Vertex { Vert_P_N_Tx.position = V3 x y z
-                                               , Vert_P_N_Tx.normal = V3 (-1) 0 0
-                                               , Vert_P_N_Tx.texCoord = V2 1 1
-                                               }
-                    lower = Vert_P_N_Tx.Vertex { Vert_P_N_Tx.position = V3 x 0 z
-                                               , Vert_P_N_Tx.normal = V3 (-1) 0 0
-                                               , Vert_P_N_Tx.texCoord = V2 1 0
-                                               }
+                let pos = TerrainGrid.lookup (trav verts idx) terrainGrid
+                    (upper, lower) = mkVertexPair pos idx normal
                 in go (lower:upper:xs) (idx + 1)
 
+-- | West wall traversal. Always at x = 0, z = idx.
+westWallTraverse :: WallTraverse
+westWallTraverse _verts idx = (0, idx)
+
+-- | Given the (vertex) index make two vertices. One at the same height as
+-- the position and one at height zero.
+mkVertexPair :: V3 GLfloat -> Int -> V3 GLfloat
+             -> (Vert_P_N_Tx.Vertex, Vert_P_N_Tx.Vertex)
+mkVertexPair pos@(V3 x _y z) idx normal
+    | even idx =
+        let upper = Vert_P_N_Tx.Vertex { Vert_P_N_Tx.position = pos
+                                       , Vert_P_N_Tx.normal = normal
+                                       , Vert_P_N_Tx.texCoord = V2 0 1
+                                       }
+            lower = Vert_P_N_Tx.Vertex { Vert_P_N_Tx.position = V3 x 0 z
+                                       , Vert_P_N_Tx.normal = normal
+                                       , Vert_P_N_Tx.texCoord = V2 0 0
+                                       }
+        in (upper, lower)
+    | otherwise =
+        let upper = Vert_P_N_Tx.Vertex { Vert_P_N_Tx.position = pos
+                                       , Vert_P_N_Tx.normal = normal
+                                       , Vert_P_N_Tx.texCoord = V2 1 1
+                                       }
+            lower = Vert_P_N_Tx.Vertex { Vert_P_N_Tx.position = V3 x 0 z
+                                       , Vert_P_N_Tx.normal = normal
+                                       , Vert_P_N_Tx.texCoord = V2 1 0
+                                       }
+        in (upper, lower)
+
+-- | Generate the given number of indices.
 indices :: Int -> [GLuint]
 indices quads = concatMap mkQuadIndices [0 .. quads - 1]
     where
