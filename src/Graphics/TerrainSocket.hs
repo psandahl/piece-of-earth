@@ -92,7 +92,7 @@ render terrainSocket = do
     setUniform (vMatrixLoc terrainSocket) vMatrix
 
     timeOfDay <- getTimeOfDay
-    setAmbientLight (ambientLightLoc terrainSocket) $ ambientLight timeOfDay
+    setAmbientLight (ambientLightLoc terrainSocket) ambientLight
     setLightEmitter (sunLightLoc terrainSocket) $ sunLight timeOfDay
 
     -- Render stuff.

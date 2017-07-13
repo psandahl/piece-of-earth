@@ -108,7 +108,7 @@ render terrain = do
     setUniform (vMatrixLoc terrain) vMatrix
 
     timeOfDay <- getTimeOfDay
-    setAmbientLight (ambientLightLoc terrain) $ ambientLight timeOfDay
+    setAmbientLight (ambientLightLoc terrain) ambientLight
     setLightEmitter (sunLightLoc terrain) $ sunLight timeOfDay
     setFog (fogLoc terrain) fog
 

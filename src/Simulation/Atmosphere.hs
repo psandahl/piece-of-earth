@@ -43,12 +43,12 @@ data SkyGradient = SkyGradient
     , horizon :: !(V3 GLfloat)
     } deriving Show
 
--- | Give the ambient light given the time of day.
-ambientLight :: TimeOfDay -> AmbientLight
-ambientLight timeOfDay =
+-- | Give the ambient light.
+ambientLight :: AmbientLight
+ambientLight =
     AmbientLight
-        { AmbientLight.color = lightColor timeOfDay
-        , AmbientLight.strength = ambience timeOfDay
+        { AmbientLight.color = V3 1 1 1
+        , AmbientLight.strength = 0.2
         }
 
 -- | Give the sun light (or moon light) given the time of day.
@@ -109,11 +109,6 @@ fog = Fog  { Fog.color = V3 0.5 0.5 0.5
 -- that its light direction, more or less, will be the same for all fragments.
 distanceToTheSun :: GLfloat
 distanceToTheSun = 100000
-
--- | The ambient lightning strength.
-ambience :: TimeOfDay -> GLfloat
-ambience Night = 0.2
-ambience _     = 0.1
 
 -- | The angle in degrees of the sun (or moon during night) at the different
 -- times of day.
