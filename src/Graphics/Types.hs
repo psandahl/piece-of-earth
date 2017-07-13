@@ -101,8 +101,14 @@ data TerrainSocket = TerrainSocket
     , mvMatrixLoc     :: !Location
       -- ^ The location of the mv matrix.
 
+    , vMatrixLoc      :: !Location
+      -- ^ View matrix location.
+
     , ambientLightLoc :: !AmbientLightLoc
       -- ^ Locations for the ambient light.
+
+    , sunLightLoc     :: !LightEmitterLoc
+      -- ^ Locations for the sun light.
 
     , mesh            :: !Mesh
       -- ^ The mesh.

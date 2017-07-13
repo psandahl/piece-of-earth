@@ -32,11 +32,13 @@ import           Engine.State                 (State, getPerspectiveMatrix,
 import           Graphics.GL                  (GLfloat, GLuint)
 import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
                                                setAmbientLight)
+import           Graphics.Lights.LightEmitter (getLightEmitterLoc,
+                                               setLightEmitter)
 import           Graphics.Types               (TerrainSocket (..))
 import           Linear                       (V2 (..), V3 (..), identity,
                                                (!*!))
 import           Prelude                      hiding (init)
-import           Simulation.Atmosphere        (ambientLight)
+import           Simulation.Atmosphere        (ambientLight, sunLight)
 import           System.FilePath              ((</>))
 
 -- | Initialize the 'TerrainSocket' from a 'TerrainGrid' and the path to
@@ -51,7 +53,9 @@ init terrainGrid resourceDir = do
             mesh' <- loadMesh terrainGrid
             mvpMatrixLoc' <- Program.getUniformLocation program' "mvpMatrix"
             mvMatrixLoc' <- Program.getUniformLocation program' "mvMatrix"
+            vMatrixLoc' <- Program.getUniformLocation program' "vMatrix"
             ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
+            sunLightLoc' <- getLightEmitterLoc program' "sunLight"
 
             return $
                 Right TerrainSocket
@@ -59,7 +63,9 @@ init terrainGrid resourceDir = do
                     , modelMatrix = identity
                     , mvpMatrixLoc = mvpMatrixLoc'
                     , mvMatrixLoc = mvMatrixLoc'
+                    , vMatrixLoc = vMatrixLoc'
                     , ambientLightLoc = ambientLightLoc'
+                    , sunLightLoc = sunLightLoc'
                     , mesh = mesh'
                     }
 
@@ -83,9 +89,11 @@ render terrainSocket = do
         mvp = pMatrix !*! mv
     setUniform (mvpMatrixLoc terrainSocket) mvp
     setUniform (mvMatrixLoc terrainSocket) mv
+    setUniform (vMatrixLoc terrainSocket) vMatrix
 
     timeOfDay <- getTimeOfDay
     setAmbientLight (ambientLightLoc terrainSocket) $ ambientLight timeOfDay
+    setLightEmitter (sunLightLoc terrainSocket) $ sunLight timeOfDay
 
     -- Render stuff.
     Mesh.enable $ mesh terrainSocket
