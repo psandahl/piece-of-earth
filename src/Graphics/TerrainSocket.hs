@@ -96,8 +96,8 @@ loadMesh terrainGrid = do
 -- | Load the program used for terrain socket rendering.
 loadProgram :: MonadIO m => FilePath -> m (Either String Program)
 loadProgram resourceDir = do
-    let vertexShader = resourceDir </> "shaders" </> "terrainSocket.vert"
-        fragmentShader = resourceDir </> "shaders" </> "terrainSocket.frag"
+    let vertexShader = resourceDir </> "shaders" </> "entity.vert"
+        fragmentShader = resourceDir </> "shaders" </> "entity.frag"
     Program.fromFile [ (VertexShader, vertexShader)
                      , (FragmentShader, fragmentShader)
                      ]
