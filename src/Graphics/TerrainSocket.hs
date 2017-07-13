@@ -34,6 +34,8 @@ import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
                                                setAmbientLight)
 import           Graphics.Lights.LightEmitter (getLightEmitterLoc,
                                                setLightEmitter)
+import           Graphics.Lights.Material     (Material (..), getMaterialLoc,
+                                               setMaterial)
 import           Graphics.Types               (TerrainSocket (..))
 import           Linear                       (V2 (..), V3 (..), identity,
                                                (!*!))
@@ -56,6 +58,7 @@ init terrainGrid resourceDir = do
             vMatrixLoc' <- Program.getUniformLocation program' "vMatrix"
             ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
             sunLightLoc' <- getLightEmitterLoc program' "sunLight"
+            materialLoc' <- getMaterialLoc program' "material"
 
             return $
                 Right TerrainSocket
@@ -66,6 +69,8 @@ init terrainGrid resourceDir = do
                     , vMatrixLoc = vMatrixLoc'
                     , ambientLightLoc = ambientLightLoc'
                     , sunLightLoc = sunLightLoc'
+                    , material = Material { shine = 32, strength = 3 }
+                    , materialLoc = materialLoc'
                     , mesh = mesh'
                     }
 
@@ -94,6 +99,7 @@ render terrainSocket = do
     timeOfDay <- getTimeOfDay
     setAmbientLight (ambientLightLoc terrainSocket) ambientLight
     setLightEmitter (sunLightLoc terrainSocket) $ sunLight timeOfDay
+    setMaterial (materialLoc terrainSocket) $ material terrainSocket
 
     -- Render stuff.
     Mesh.enable $ mesh terrainSocket

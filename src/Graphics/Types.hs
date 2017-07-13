@@ -30,6 +30,7 @@ import           Graphics.Fog                 (FogLoc)
 import           Graphics.GL                  (GLfloat)
 import           Graphics.Lights.AmbientLight (AmbientLightLoc)
 import           Graphics.Lights.LightEmitter (LightEmitterLoc)
+import           Graphics.Lights.Material     (Material, MaterialLoc)
 import           Linear                       (M44, V3 (..))
 
 -- | The camera record.
@@ -109,6 +110,12 @@ data TerrainSocket = TerrainSocket
 
     , sunLightLoc     :: !LightEmitterLoc
       -- ^ Locations for the sun light.
+
+    , material        :: !Material
+      -- ^ Material properties for the terrain socket.
+
+    , materialLoc     :: !MaterialLoc
+      -- ^ Locations for the material.
 
     , mesh            :: !Mesh
       -- ^ The mesh.

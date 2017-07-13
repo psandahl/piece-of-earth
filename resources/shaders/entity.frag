@@ -15,6 +15,12 @@ struct LightEmitter
   vec3 color;
 };
 
+// Material type.
+struct Material
+{ int shine;
+  float strength;
+};
+
 // Interpolated vertex attributes.
 in vec3 vPosition;
 in vec3 vNormal;
@@ -29,6 +35,9 @@ uniform AmbientLight ambientLight;
 // The sun light.
 uniform LightEmitter sunLight;
 
+// The material properties.
+uniform Material material;
+
 // Mandatory output; the color for the fragment.
 out vec4 color;
 
@@ -40,7 +49,9 @@ vec3 sunDirection();
 
 void main()
 {
-  vec3 fragmentColor = baseColor() * (calcAmbientLight() + calcDiffuseLight() + calcSpecularLight());
+  vec3 fragmentColor = baseColor() * (calcAmbientLight() +
+                                      calcDiffuseLight() +
+                                      calcSpecularLight());
   color = vec4(fragmentColor, 1.0);
 }
 
@@ -72,9 +83,9 @@ vec3 calcSpecularLight()
   vec3 reflectDir = reflect(sunDirection(), normal);
   vec3 viewDir = normalize(vec3(0) - vPosition);
   float specAngle = dot(viewDir, reflectDir);
-  float specular = pow(max(specAngle, 0), 64);
+  float specular = pow(max(specAngle, 0), material.shine);
 
-  return specular * 10.0 * sunLight.color;
+  return specular * material.strength * sunLight.color;
 }
 
 // Calculate the sun's direction.
