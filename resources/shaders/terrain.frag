@@ -15,6 +15,13 @@ struct LightEmitter
   vec3 color;
 };
 
+// Material type.
+struct Material
+{
+  int shine;
+  float strength;
+};
+
 // Fog.
 struct Fog
 {
@@ -41,6 +48,9 @@ uniform AmbientLight ambientLight;
 // The sun light.
 uniform LightEmitter sunLight;
 
+// The material properties.
+uniform Material material;
+
 // The fog.
 uniform Fog fog;
 
@@ -49,12 +59,16 @@ out vec4 color;
 
 vec3 baseColor();
 vec3 calcAmbientLight();
-vec3 calcSunLight();
+vec3 calcDiffuseLight();
+vec3 calcSpecularLight();
+vec3 sunDirection();
 float linearFogFactor();
 
 void main()
 {
-  vec3 fragmentColor = baseColor() * (calcAmbientLight() + calcSunLight());
+  vec3 fragmentColor = baseColor() * (calcAmbientLight() +
+                                      calcDiffuseLight() +
+                                      calcSpecularLight());
   vec3 mixedWithFog = mix(fragmentColor, fog.color, linearFogFactor());
   color = vec4(mixedWithFog, 1.0);
 }
@@ -74,17 +88,33 @@ vec3 calcAmbientLight()
 }
 
 // Calculate the sun (diffuse) light. This lightning is performed in view space.
-vec3 calcSunLight()
+vec3 calcDiffuseLight()
 {
   vec3 normal = normalize(vNormal);
+  float diffuse = max(dot(normal, -sunDirection()), 0);
 
+  return sunLight.color * diffuse;
+}
+
+// Calculate the sun (specular) light. This lightning is performed in view space.
+vec3 calcSpecularLight()
+{
+  vec3 normal = normalize(vNormal);
+  vec3 reflectDir = reflect(sunDirection(), normal);
+  vec3 viewDir = normalize(vec3(0) - vPosition);
+  float specAngle = dot(viewDir, reflectDir);
+  float specular = pow(max(specAngle, 0), material.shine);
+
+  return specular * material.strength * sunLight.color;
+}
+
+// Calculate the sun's direction.
+vec3 sunDirection()
+{
   // The sun light is already in the correct model coordinates. Just transform
   // it to the view space of the terrain.
   vec3 sunSpot = (vMatrix * vec4(sunLight.position, 1)).xyz;
-  vec3 direction = normalize(vPosition - sunSpot);
-  float diffuse = max(dot(normal, -direction), 0);
-
-  return sunLight.color * diffuse;
+  return normalize(vPosition - sunSpot);
 }
 
 // Calculate the mix factor for the fog.

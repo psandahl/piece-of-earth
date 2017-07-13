@@ -17,7 +17,8 @@ struct LightEmitter
 
 // Material type.
 struct Material
-{ int shine;
+{
+  int shine;
   float strength;
 };
 

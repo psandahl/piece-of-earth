@@ -75,6 +75,12 @@ data Terrain = Terrain
     , sunLightLoc      :: !LightEmitterLoc
       -- ^ Locations for the sun light.
 
+    , material         :: !Material
+      -- ^ Material properties for the terrain.
+
+    , materialLoc      :: !MaterialLoc
+      -- ^ Locations for the material.
+
     , fogLoc           :: !FogLoc
       -- ^ Locations for the fog.
 

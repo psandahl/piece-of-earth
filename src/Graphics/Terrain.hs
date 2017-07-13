@@ -38,6 +38,8 @@ import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
                                                setAmbientLight)
 import           Graphics.Lights.LightEmitter (getLightEmitterLoc,
                                                setLightEmitter)
+import           Graphics.Lights.Material     (Material (..), getMaterialLoc,
+                                               setMaterial)
 import           Graphics.Types               (Terrain (..))
 import           Linear                       (identity, (!*!))
 import           Prelude                      hiding (init)
@@ -65,6 +67,7 @@ init resourceDir = do
             groundTextureLoc' <- Program.getUniformLocation program' "groundTexture"
             ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
             sunLightLoc' <- getLightEmitterLoc program' "sunLight"
+            materialLoc' <- getMaterialLoc program' "material"
             fogLoc' <- getFogLoc program' "fog"
 
             return $
@@ -76,6 +79,10 @@ init resourceDir = do
                               , groundTextureLoc = groundTextureLoc'
                               , ambientLightLoc = ambientLightLoc'
                               , sunLightLoc = sunLightLoc'
+                              , material = Material { shine = 16
+                                                    , strength = 0.8
+                                                    }
+                              , materialLoc = materialLoc'
                               , fogLoc = fogLoc'
                               , terrainGrid = terrainGrid'
                               , groundTexture = groundTexture'
@@ -110,6 +117,7 @@ render terrain = do
     timeOfDay <- getTimeOfDay
     setAmbientLight (ambientLightLoc terrain) ambientLight
     setLightEmitter (sunLightLoc terrain) $ sunLight timeOfDay
+    setMaterial (materialLoc terrain) $ material terrain
     setFog (fogLoc terrain) fog
 
     -- Render stuff.
