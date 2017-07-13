@@ -15,25 +15,29 @@ module Graphics.TerrainSocket
     , render
     ) where
 
-import qualified BigE.Attribute.Vert_P_N_Tx as Vert_P_N_Tx
-import           BigE.Mesh                  (Mesh)
-import qualified BigE.Mesh                  as Mesh
-import qualified BigE.Program               as Program
-import           BigE.Runtime               (Render)
-import           BigE.TerrainGrid           (TerrainGrid)
-import qualified BigE.TerrainGrid           as TerrainGrid
-import           BigE.Types                 (BufferUsage (..), Primitive (..),
-                                             Program, ShaderType (..),
-                                             setUniform)
-import           Control.Monad.IO.Class     (MonadIO)
-import qualified Data.Vector.Storable       as Vector
-import           Engine.State               (State, getPerspectiveMatrix,
-                                             getViewMatrix)
-import           Graphics.GL                (GLfloat, GLuint)
-import           Graphics.Types             (TerrainSocket (..))
-import           Linear                     (V2 (..), V3 (..), identity, (!*!))
-import           Prelude                    hiding (init)
-import           System.FilePath            ((</>))
+import qualified BigE.Attribute.Vert_P_N_Tx   as Vert_P_N_Tx
+import           BigE.Mesh                    (Mesh)
+import qualified BigE.Mesh                    as Mesh
+import qualified BigE.Program                 as Program
+import           BigE.Runtime                 (Render)
+import           BigE.TerrainGrid             (TerrainGrid)
+import qualified BigE.TerrainGrid             as TerrainGrid
+import           BigE.Types                   (BufferUsage (..), Primitive (..),
+                                               Program, ShaderType (..),
+                                               setUniform)
+import           Control.Monad.IO.Class       (MonadIO)
+import qualified Data.Vector.Storable         as Vector
+import           Engine.State                 (State, getPerspectiveMatrix,
+                                               getTimeOfDay, getViewMatrix)
+import           Graphics.GL                  (GLfloat, GLuint)
+import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
+                                               setAmbientLight)
+import           Graphics.Types               (TerrainSocket (..))
+import           Linear                       (V2 (..), V3 (..), identity,
+                                               (!*!))
+import           Prelude                      hiding (init)
+import           Simulation.Atmosphere        (ambientLight)
+import           System.FilePath              ((</>))
 
 -- | Initialize the 'TerrainSocket' from a 'TerrainGrid' and the path to
 -- the base resource directory.
@@ -46,12 +50,16 @@ init terrainGrid resourceDir = do
 
             mesh' <- loadMesh terrainGrid
             mvpMatrixLoc' <- Program.getUniformLocation program' "mvpMatrix"
+            mvMatrixLoc' <- Program.getUniformLocation program' "mvMatrix"
+            ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
 
             return $
                 Right TerrainSocket
                     { program = program'
                     , modelMatrix = identity
                     , mvpMatrixLoc = mvpMatrixLoc'
+                    , mvMatrixLoc = mvMatrixLoc'
+                    , ambientLightLoc = ambientLightLoc'
                     , mesh = mesh'
                     }
 
@@ -71,8 +79,13 @@ render terrainSocket = do
     -- Setting uniforms.
     pMatrix <- getPerspectiveMatrix
     vMatrix <- getViewMatrix
-    let mvp = pMatrix !*! vMatrix !*! modelMatrix terrainSocket
+    let mv = vMatrix !*! modelMatrix terrainSocket
+        mvp = pMatrix !*! mv
     setUniform (mvpMatrixLoc terrainSocket) mvp
+    setUniform (mvMatrixLoc terrainSocket) mv
+
+    timeOfDay <- getTimeOfDay
+    setAmbientLight (ambientLightLoc terrainSocket) $ ambientLight timeOfDay
 
     -- Render stuff.
     Mesh.enable $ mesh terrainSocket

@@ -89,16 +89,22 @@ data Terrain = Terrain
 
 -- | TerrainSocket record.
 data TerrainSocket = TerrainSocket
-    { program      :: !Program
+    { program         :: !Program
       -- ^ The shader program used for rendering of terrain socket.
 
-    , modelMatrix  :: !(M44 GLfloat)
+    , modelMatrix     :: !(M44 GLfloat)
       -- ^ The model matrix.
 
-    , mvpMatrixLoc :: !Location
+    , mvpMatrixLoc    :: !Location
       -- ^ The location of the mvp matrix.
 
-    , mesh         :: !Mesh
+    , mvMatrixLoc     :: !Location
+      -- ^ The location of the mv matrix.
+
+    , ambientLightLoc :: !AmbientLightLoc
+      -- ^ Locations for the ambient light.
+
+    , mesh            :: !Mesh
       -- ^ The mesh.
     } deriving Show
 
