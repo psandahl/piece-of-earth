@@ -69,7 +69,7 @@ init terrainGrid resourceDir = do
                     , vMatrixLoc = vMatrixLoc'
                     , ambientLightLoc = ambientLightLoc'
                     , sunLightLoc = sunLightLoc'
-                    , material = Material { shine = 32, strength = 3 }
+                    , material = Material { shine = 32, strength = 1 }
                     , materialLoc = materialLoc'
                     , mesh = mesh'
                     }
