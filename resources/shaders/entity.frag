@@ -39,6 +39,9 @@ uniform LightEmitter sunLight;
 // The material properties.
 uniform Material material;
 
+// The texture.
+uniform sampler2D texture;
+
 // Mandatory output; the color for the fragment.
 out vec4 color;
 
@@ -59,7 +62,7 @@ void main()
 // The base color for the fragment.
 vec3 baseColor()
 {
-  return vec3(192.0 / 255.0);
+  return texture2D(texture, vTexCoord).rgb;
 }
 
 // Calculate the ambient light for the fragment.

@@ -22,14 +22,16 @@ import qualified BigE.Program                 as Program
 import           BigE.Runtime                 (Render)
 import           BigE.TerrainGrid             (TerrainGrid)
 import qualified BigE.TerrainGrid             as TerrainGrid
+import qualified BigE.Texture                 as Texture
 import           BigE.Types                   (BufferUsage (..), Primitive (..),
                                                Program, ShaderType (..),
-                                               setUniform)
+                                               Texture, setUniform)
+import           BigE.Util                    (eitherTwo)
 import           Control.Monad.IO.Class       (MonadIO)
 import qualified Data.Vector.Storable         as Vector
 import           Engine.State                 (State, getPerspectiveMatrix,
                                                getTimeOfDay, getViewMatrix)
-import           Graphics.GL                  (GLfloat, GLuint)
+import           Graphics.GL                  (GLfloat, GLint, GLuint)
 import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
                                                setAmbientLight)
 import           Graphics.Lights.LightEmitter (getLightEmitterLoc,
@@ -48,9 +50,10 @@ import           System.FilePath              ((</>))
 init :: MonadIO m => TerrainGrid -> FilePath -> m (Either String TerrainSocket)
 init terrainGrid resourceDir = do
     eProgram <- loadProgram resourceDir
+    eTexture <- loadTexture resourceDir
 
-    case eProgram of
-        Right program' -> do
+    case eitherTwo (eProgram, eTexture) of
+        Right (program', texture') -> do
 
             mesh' <- loadMesh terrainGrid
             mvpMatrixLoc' <- Program.getUniformLocation program' "mvpMatrix"
@@ -59,6 +62,7 @@ init terrainGrid resourceDir = do
             ambientLightLoc' <- getAmbientLightLoc program' "ambientLight"
             sunLightLoc' <- getLightEmitterLoc program' "sunLight"
             materialLoc' <- getMaterialLoc program' "material"
+            textureLoc' <- Program.getUniformLocation program' "texture"
 
             return $
                 Right TerrainSocket
@@ -71,6 +75,8 @@ init terrainGrid resourceDir = do
                     , sunLightLoc = sunLightLoc'
                     , material = Material { shine = 32, strength = 1 }
                     , materialLoc = materialLoc'
+                    , textureLoc = textureLoc'
+                    , texture = texture'
                     , mesh = mesh'
                     }
 
@@ -80,12 +86,14 @@ init terrainGrid resourceDir = do
 delete :: TerrainSocket -> Render State ()
 delete terrainSocket = do
     Program.delete $ program terrainSocket
+    Texture.delete $ texture terrainSocket
     Mesh.delete $ mesh terrainSocket
 
 -- | Render the 'TerrainSocket'.
 render :: TerrainSocket -> Render State ()
 render terrainSocket = do
     Program.enable $ program terrainSocket
+    Texture.enable2D 0 $ texture terrainSocket
 
     -- Setting uniforms.
     pMatrix <- getPerspectiveMatrix
@@ -101,11 +109,15 @@ render terrainSocket = do
     setLightEmitter (sunLightLoc terrainSocket) $ sunLight timeOfDay
     setMaterial (materialLoc terrainSocket) $ material terrainSocket
 
+    setUniform (textureLoc terrainSocket) (0 :: GLint)
+
     -- Render stuff.
     Mesh.enable $ mesh terrainSocket
     Mesh.render Triangles $ mesh terrainSocket
 
     -- Clean up.
+    Mesh.disable
+    Texture.disable2D 0
     Program.disable
 
 -- | Load the mesh for 'TerrainGrid'.
@@ -128,6 +140,12 @@ loadProgram resourceDir = do
     Program.fromFile [ (VertexShader, vertexShader)
                      , (FragmentShader, fragmentShader)
                      ]
+
+-- | Load the texture used by the socket.
+loadTexture :: MonadIO m => FilePath -> m (Either String Texture)
+loadTexture resourceDir = do
+    let path = resourceDir </> "textures" </> "test.tga"
+    Texture.fromFile2D path Texture.defaultParams2D
 
 type WallTraverse = Int -> Int -> (Int, Int)
 

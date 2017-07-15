@@ -123,6 +123,12 @@ data TerrainSocket = TerrainSocket
     , materialLoc     :: !MaterialLoc
       -- ^ Locations for the material.
 
+    , textureLoc      :: !Location
+      -- ^ Location for the socket's texture.
+
+    , texture         :: !Texture
+      -- ^ Texture for the socket's material.
+
     , mesh            :: !Mesh
       -- ^ The mesh.
     } deriving Show
