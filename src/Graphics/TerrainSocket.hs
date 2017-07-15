@@ -144,7 +144,7 @@ loadProgram resourceDir = do
 -- | Load the texture used by the socket.
 loadTexture :: MonadIO m => FilePath -> m (Either String Texture)
 loadTexture resourceDir = do
-    let path = resourceDir </> "textures" </> "test.tga"
+    let path = resourceDir </> "textures" </> "gray.png"
     Texture.fromFile2D path Texture.defaultParams2D
 
 type WallTraverse = Int -> Int -> (Int, Int)
