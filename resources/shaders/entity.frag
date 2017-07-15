@@ -22,6 +22,14 @@ struct Material
   float strength;
 };
 
+// Fog.
+struct Fog
+{
+  vec3 color;
+  float fogStart;
+  float fogEnd;
+};
+
 // Interpolated vertex attributes.
 in vec3 vPosition;
 in vec3 vNormal;
@@ -42,6 +50,9 @@ uniform Material material;
 // The texture.
 uniform sampler2D texture;
 
+// The fog.
+uniform Fog fog;
+
 // Mandatory output; the color for the fragment.
 out vec4 color;
 
@@ -50,13 +61,15 @@ vec3 calcAmbientLight();
 vec3 calcDiffuseLight();
 vec3 calcSpecularLight();
 vec3 sunDirection();
+float linearFogFactor();
 
 void main()
 {
   vec3 fragmentColor = baseColor() * (calcAmbientLight() +
                                       calcDiffuseLight() +
                                       calcSpecularLight());
-  color = vec4(fragmentColor, 1.0);
+  vec3 mixedWithFog = mix(fragmentColor, fog.color, linearFogFactor());
+  color = vec4(mixedWithFog, 1.0);
 }
 
 // The base color for the fragment.
@@ -99,4 +112,26 @@ vec3 sunDirection()
   // it to the view space of the terrain.
   vec3 sunSpot = (vMatrix * vec4(sunLight.position, 1)).xyz;
   return normalize(vPosition - sunSpot);
+}
+
+// Calculate the mix factor for the fog.
+float linearFogFactor()
+{
+  // The fog coordinate given the eye position at 0, 0, 0.
+  float fogCoord = abs(distance(vec3(0), vPosition));
+
+  if (fogCoord < fog.fogStart)
+  {
+    return 0.0;
+  }
+  else if (fogCoord > fog.fogEnd)
+  {
+    return 1.0;
+  }
+  else
+  {
+    float fogDistance = fog.fogEnd - fog.fogStart;
+    float normalizedFogCoord = fogCoord - fog.fogStart;
+    return smoothstep(0, fogDistance, normalizedFogCoord);
+  }
 }

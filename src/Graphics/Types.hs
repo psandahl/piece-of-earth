@@ -126,6 +126,9 @@ data TerrainSocket = TerrainSocket
     , textureLoc      :: !Location
       -- ^ Location for the socket's texture.
 
+    , fogLoc          :: !FogLoc
+      -- ^ Locations for the fog.
+
     , texture         :: !Texture
       -- ^ Texture for the socket's material.
 

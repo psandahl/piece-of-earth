@@ -31,6 +31,7 @@ import           Control.Monad.IO.Class       (MonadIO)
 import qualified Data.Vector.Storable         as Vector
 import           Engine.State                 (State, getPerspectiveMatrix,
                                                getTimeOfDay, getViewMatrix)
+import           Graphics.Fog                 (getFogLoc, setFog)
 import           Graphics.GL                  (GLfloat, GLint, GLuint)
 import           Graphics.Lights.AmbientLight (getAmbientLightLoc,
                                                setAmbientLight)
@@ -42,7 +43,7 @@ import           Graphics.Types               (TerrainSocket (..))
 import           Linear                       (V2 (..), V3 (..), identity,
                                                (!*!))
 import           Prelude                      hiding (init)
-import           Simulation.Atmosphere        (ambientLight, sunLight)
+import           Simulation.Atmosphere        (ambientLight, fog, sunLight)
 import           System.FilePath              ((</>))
 
 -- | Initialize the 'TerrainSocket' from a 'TerrainGrid' and the path to
@@ -63,6 +64,7 @@ init terrainGrid resourceDir = do
             sunLightLoc' <- getLightEmitterLoc program' "sunLight"
             materialLoc' <- getMaterialLoc program' "material"
             textureLoc' <- Program.getUniformLocation program' "texture"
+            fogLoc' <- getFogLoc program' "fog"
 
             return $
                 Right TerrainSocket
@@ -76,6 +78,7 @@ init terrainGrid resourceDir = do
                     , material = Material { shine = 32, strength = 1 }
                     , materialLoc = materialLoc'
                     , textureLoc = textureLoc'
+                    , fogLoc = fogLoc'
                     , texture = texture'
                     , mesh = mesh'
                     }
@@ -110,6 +113,8 @@ render terrainSocket = do
     setMaterial (materialLoc terrainSocket) $ material terrainSocket
 
     setUniform (textureLoc terrainSocket) (0 :: GLint)
+
+    setFog (fogLoc terrainSocket) fog
 
     -- Render stuff.
     Mesh.enable $ mesh terrainSocket
