@@ -79,7 +79,7 @@ init resourceDir = do
                               , groundTextureLoc = groundTextureLoc'
                               , ambientLightLoc = ambientLightLoc'
                               , sunLightLoc = sunLightLoc'
-                              , material = Material { shine = 16
+                              , material = Material { shine = 8
                                                     , strength = 0.8
                                                     }
                               , materialLoc = materialLoc'
