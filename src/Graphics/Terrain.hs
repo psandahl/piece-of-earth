@@ -53,8 +53,8 @@ init resourceDir = do
     eGroundTexture <- loadGroundTexture resourceDir "dirt.tga"
     eModel <- loadMesh resourceDir
                        "ter1-1025x1025.bmp"
-                       "ter3-1025x1025.png"
-                       (1025, 1025) 1
+                       "ter3-1025x1025.r16"
+                       (1025, 1025) 300
                        --"ter2-513x513.png"
                        --"ter2-513x513.r16"
                        --(513, 513) 300
@@ -186,10 +186,10 @@ loadMesh resourceDir colorFile heightFile heightDimensions heightScale = do
 -- | Load a heightmap from raw file.
 loadRawHeightMap :: MonadIO m => FilePath -> FilePath -> (Int, Int)
                  -> m (Either String ImageMap)
-loadRawHeightMap resourceDir file _dimensions = do
+loadRawHeightMap resourceDir file dimensions = do
     let path = resourceDir </> "heightmaps" </> file
-        --spec = Raw16File dimensions path
-        spec = RGB8File path
+        spec = Raw16File dimensions path
+        --spec = RGB8File path
     ImageMap.fromFile spec
 
 -- Load a color map from a RGB file.
